@@ -21,7 +21,7 @@ class Stock:
         end_date = end
 
         user_ticker_symbol = self.stock_ticker
-        ticker_symbol = yf.Ticker(user_ticker_symbol)
+        #ticker_symbol = yf.Ticker(user_ticker_symbol)
 
         df = data.DataReader(user_ticker_symbol, 'yahoo', start_date, end_date)
         return df.head()
