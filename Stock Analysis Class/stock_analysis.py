@@ -47,11 +47,12 @@ class Stock:
         plt.title('Adjusted Closing Price')
         plt.show()
 
-    def present_stock_data(self, start, end): 
+    def present_stock_data(self): 
 
         # Present the stock data in a DataFrame 
-
-        stock_data = self.ticker_data(start, end)
+        start = self.start_date
+        end = self.end_date
+        stock_data = self.ticker_data()
         return stock_data.head(15) 
 
     def set_start_date(self, start_year, start_month, start_day): 
@@ -87,10 +88,10 @@ class Stock:
         end_date_obj = dt.datetime.strptime(self.end_date, '%d/%m/%y')
         return end_date_obj
         
-symbol = 'TSLA'
-stock_list = Stock(symbol, "29/03/2021", "29/03/2021")
-print(stock_list.get_start_date())
-print(stock_list.ticker_data())
+# symbol = ["GME", "TSLA", "MSFT"]
+# stock_list = Stock(symbol, "22/01/2020", "29/03/2021")
+# print(stock_list.get_start_date())
+# print(stock_list.ticker_data())
 
 #symbols = "GME"
 # #symbols = ["GME", "TSLA", "MSFT"]
