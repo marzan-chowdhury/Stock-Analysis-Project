@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 class Stock: 
 
 
-    def __init__(self, stock_ticker, start_date, end_date):
+    def __init__(self, stock_ticker, stock_prices, start_date, end_date):
         self.stock_ticker =  stock_ticker
+        self.stock_prices = stock_prices
         self.start_date = start_date
         self.end_date = end_date
     
@@ -30,6 +31,19 @@ class Stock:
         user_ticker_symbol = self.stock_ticker
 
         df = data.DataReader(user_ticker_symbol, 'yahoo', start_date, end_date)
+        #cols = ('Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close')
+        #df.reindex(columns=cols)
+        #return df.head(15)
+        return df
+
+    def list_of_stocks_data(self, stocks_list): 
+        
+        # Return the stock information with the provided dates given 
+
+        start_date = self.start_date
+        end_date = self.end_date
+
+        df = data.DataReader(stocks_list, 'yahoo', start_date, end_date)
         #cols = ('Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close')
         #df.reindex(columns=cols)
         #return df.head(15)

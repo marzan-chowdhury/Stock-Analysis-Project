@@ -7,8 +7,8 @@ import yfinance as yf
 
 class Analysis(Stock): 
 
-    def __init__(self, stock_ticker, start_date, end_date, name):
-        super().__init__(stock_ticker, start_date, end_date)
+    def __init__(self, stock_ticker, stock_prices, start_date, end_date, name):
+        super().__init__(stock_ticker, stock_prices, start_date, end_date)
         self.name = name
 
     def talk(self):
@@ -114,7 +114,7 @@ class Analysis(Stock):
         print("Dataframe:" ,df)
         return df
 
-    def simple_rate_return(self, starting_price): 
+    def simple_rate_return_1(self, starting_price): 
   
         todays_date = datetime.now() - timedelta(3)#.strftime("%Y-%m-%d")
         todays_date = todays_date.strftime("%Y-%m-%d")
@@ -136,6 +136,73 @@ class Analysis(Stock):
         simple_rate_return_1 = ((todays_closing_price - starting_price) / starting_price) * 100
         print("returns  = ", simple_rate_return_1)
         return simple_rate_return_1
+
+    def simple_rate_return(self): 
+        
+        stock_prices = self.stock_prices
+        todays_date = datetime.now() - timedelta(3)#.strftime("%Y-%m-%d")
+        todays_date = todays_date.strftime("%Y-%m-%d")
+        #print("Current Date: ", current_date)
+        recent_df = self.todays_data(todays_date) 
+        #print("Current dataframe: ", recent_df) 
+        todays_closing_price = recent_df['Close']
+        #df = recent_df['Adj Close'].to_frame().reset_index()
+
+        #todays_closing_price = df.loc[:,'Adj Close']
+        todays_closing_price = recent_df.loc[:,'Adj Close']
+        print("Todays closing price: ", todays_closing_price)
+        test = todays_closing_price.iloc[-1]
+        todays_closing_price = test
+        print("test: ", test)
+        #print(df)
+        print("Todays closing price is: ", todays_closing_price)
+        print(stock_prices)
+        simple_rate_return_1 = ((todays_closing_price - stock_prices) / stock_prices) * 100
+        print("returns  = ", simple_rate_return_1)
+        return simple_rate_return_1
+
+    def portfolio_simple_rate_return(self):
+        
+        portfolio_prices = self.stock_prices
+        simple_return_assets = self.simple_rate_return_1(portfolio_prices)
+        simple_return_assets = simple_return_assets.values.tolist()
+        print("simple return: ", simple_return_assets)
+        wieghts_of_assets = self.weights_of_portfolio()
+
+        portfolio_return = 0 
+
+        for i, j in zip(simple_return_assets, wieghts_of_assets):
+            #print("returns: ", i)
+            #for j in wieghts_of_assets: 
+                #print("weights: ", j)
+            portfolio_return += i * j 
+                
+        
+        print("Portfolio return: ", portfolio_return)
+        
+
+    def weights_of_portfolio(self): 
+
+        list_of_stocks = self.stock_ticker 
+        list_of_stock_prices = self.stock_prices 
+
+        number_of_stocks = 0 
+        for stock in list_of_stocks:
+            number_of_stocks += 1 
+        print("Number of stokc in portfolio: ", number_of_stocks)
+
+        total_weights = [] 
+
+        total_invested = 0 
+        for prices in list_of_stock_prices: 
+            total_invested += prices 
+        print("Total invested: ", total_invested)
+        for prices in list_of_stock_prices:
+            weight_asset = prices /  total_invested
+            total_weights.append(weight_asset)
+        print("Weights of assets: ", total_weights)
+        
+        return total_weights
 
     def daily_return(self): 
 
@@ -312,29 +379,42 @@ start = '2021-04-07'
 end = '2021-04-08'
 # start = '07/04/2021'
 # end = '08/04/2021'
-x = Analysis('TSLA', start, end, 'MARZAN')
-x.talk()
-print("***************************")
-print(x.get_start_date())
-print("***************************")
-print(x.ticker_data())
-print("***************************")
+#works with a list of stocks!
+list_stocks = ['TSLA', 'AAPL']
+prices_of_stocks = [500, 100]
+#x = Analysis('TSLA', start, end, 'MARZAN')
+x = Analysis(list_stocks, prices_of_stocks, start, end, 'MARZAN')
+#using the parent methods to test if it works
+#print(x.ticker_data())
+# x.talk()
+# print("***************************")
+# print(x.get_start_date())
+# print("***************************")
+# print(x.ticker_data())
+# print("***************************")
 
-simp_return = x.simple_rate_return(500)
+# simp_return = x.simple_rate_return(prices_of_stocks)
+
+simp_return = x.simple_rate_return()
 print("Returns: ", simp_return)
-print("***************************")
+# print("***************************")
 
-x.daily_return_2()
+# x.daily_return_2()
+# print("***************************")
+# x.weekly_return()
+# print("***************************")
+# x.monthly_return()
+# print("***************************")
+# x.six_month_return()
+# print("***************************")
+# x.one_year_return()
+# print("***************************")
+# x.ytd_return()
+# print("***************************")
+# x.weights_of_portfolio()
+
 print("***************************")
-x.weekly_return()
-print("***************************")
-x.monthly_return()
-print("***************************")
-x.six_month_return()
-print("***************************")
-x.one_year_return()
-print("***************************")
-x.ytd_return()
+x.portfolio_simple_rate_return()
 
 
 
