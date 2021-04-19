@@ -4,6 +4,7 @@ import datetime as dt
 import dateutil.relativedelta
 from pandas_datareader import data
 import yfinance as yf
+import numpy as np
 
 class Analysis(Stock): 
 
@@ -106,6 +107,17 @@ class Analysis(Stock):
         df = data.DataReader(ticker_symbol, 'yahoo', one_year_ago, todays_date)
         return df
     
+    def stock_five_year_data(self, ticker_symbol): 
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        today = datetime.now()
+        five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
+
+        df = data.DataReader(ticker_symbol, 'yahoo', five_years_ago, todays_date)
+        #only return the closing price of the stock 
+        df = df.loc[:,'Adj Close']
+        return df
+    
     def todays_data(self, end_date): 
         # Return the stock information with the provided dates given
         user_ticker_symbol = self.stock_ticker
@@ -203,6 +215,39 @@ class Analysis(Stock):
         print("Weights of assets: ", total_weights)
         
         return total_weights
+    
+    def yearly_stock_return(self, ticker_symbol): 
+        
+        #over a 5 year period: 
+
+        stock_five_year_data = self.stock_five_year_data(ticker_symbol)
+        #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
+        #get the annual return of the stock over the previous 5 years
+        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() * 100
+
+
+        print("Yearly Returns: ", stock_five_year_returns)
+        return stock_five_year_data
+
+    
+    def variance_of_individual_stock(self, ticker_symbol): 
+        
+        stock_five_year_data = self.stock_five_year_data(ticker_symbol)
+        #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
+        #get the annual return of the stock over the previous 5 years
+        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change()
+
+        stock_return_list = stock_five_year_returns.values.tolist()
+        #pop the first element of the list as it is recorded as 'Nan' which will output the wrong data
+        stock_return_list.pop(0)
+        print("list: ", stock_return_list)
+        variance_of_stock = np.var(stock_return_list)
+
+        print("Data: ", stock_five_year_data)
+        print("Change: ", stock_five_year_returns)
+        print("Variance: ", variance_of_stock)
+
+        return variance_of_stock
 
     def daily_return(self): 
 
@@ -395,8 +440,8 @@ x = Analysis(list_stocks, prices_of_stocks, start, end, 'MARZAN')
 
 # simp_return = x.simple_rate_return(prices_of_stocks)
 
-simp_return = x.simple_rate_return()
-print("Returns: ", simp_return)
+# simp_return = x.simple_rate_return()
+# print("Returns: ", simp_return)
 # print("***************************")
 
 # x.daily_return_2()
@@ -413,8 +458,14 @@ print("Returns: ", simp_return)
 # print("***************************")
 # x.weights_of_portfolio()
 
+# print("***************************")
+# x.portfolio_simple_rate_return()
+
 print("***************************")
-x.portfolio_simple_rate_return()
+x.variance_of_individual_stock('TSLA')
+
+print("***************************")
+x.yearly_stock_return('TSLA')
 
 
 
