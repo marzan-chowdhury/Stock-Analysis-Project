@@ -2,6 +2,10 @@ import yfinance as yf
 import datetime as dt 
 from pandas_datareader import data
 import matplotlib.pyplot as plt
+import numpy as np 
+import pandas as pd 
+from datetime import datetime, timedelta
+import dateutil.relativedelta
 
 class Stock: 
 
@@ -35,6 +39,156 @@ class Stock:
         #df.reindex(columns=cols)
         #return df.head(15)
         return df
+    def stock_one_day_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%Y-%m-%d")
+        
+        today = datetime.now().strftime("%d/%m/%Y")
+        #print("Todays date: ", today)
+        yesterday = datetime.now() - timedelta(1)
+        # yesterday = today - datetime.timedelta(days=1)
+        yesterday = yesterday.strftime("%Y-%m-%d")
+        #print("yesterdays date:", yesterday) 
+        df = data.DataReader(ticker_symbol, 'yahoo', yesterday, todays_date)
+        return df
+
+    def stock_one_day_2_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        
+        today = datetime.now().strftime("%Y-%m-%d")#("%d/%m/%Y")
+        #print("Todays date: ", today)
+        yesterday = datetime.now() - timedelta(1)
+        # yesterday = today - datetime.timedelta(days=1)
+        yesterday = yesterday.strftime("%Y-%m-%d")#("%d/%m/%Y")
+        #print("Yesterday date:", yesterday) 
+        df = data.DataReader(ticker_symbol, 'yahoo', yesterday, todays_date)
+        return df
+    
+    def stock_one_week_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        
+        today = datetime.now().strftime("%Y-%m-%d")#("%d/%m/%Y")
+        #print("Todays date: ", today)
+        last_week = datetime.now() - timedelta(7)
+        # yesterday = today - datetime.timedelta(days=1)
+        last_week = last_week.strftime("%Y-%m-%d")#("%d/%m/%Y")
+        #print("Last week date:", last_week) 
+        df = data.DataReader(ticker_symbol, 'yahoo', last_week, today)
+        return df
+    
+    def stock_one_month_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        
+        today = datetime.now().strftime("%Y-%m-%d")#("%d/%m/%Y")
+        #print("Todays date: ", today)
+        last_month = datetime.now() - timedelta(31)
+        # yesterday = today - datetime.timedelta(days=1)
+        last_month = last_month.strftime("%Y-%m-%d")#("%d/%m/%Y")
+        #print("Last month date:", last_month) 
+        df = data.DataReader(ticker_symbol, 'yahoo', last_month, todays_date)
+        return df
+    
+    def stock_six_month_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        
+        today = datetime.now()
+        six_months_ago = today - dateutil.relativedelta.relativedelta(months=6)
+
+        #print("Todays date: ", today)
+        #print("Six moths ago month: ", six_months_ago)
+
+        df = data.DataReader(ticker_symbol, 'yahoo', six_months_ago, todays_date)
+        return df
+    
+    def stock_ytd_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        today = datetime.now()
+        current_year = today.year
+        #print("This year is: ", today.year)
+
+        ytd_start = dt.datetime(current_year, 1, 1)
+        ytd_start = ytd_start.strftime("%d/%m/%Y")
+        #print("YTD STARTS: ", ytd_start)
+
+        df = data.DataReader(ticker_symbol, 'yahoo', ytd_start, todays_date)
+        return df
+
+    def stock_one_year_data(self, ticker_symbol):     
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        
+        today = datetime.now()
+        one_year_ago = today - dateutil.relativedelta.relativedelta(months=12)
+
+        #print("Todays date: ", today)
+        #print("One Year Ago: ", one_year_ago)
+
+        df = data.DataReader(ticker_symbol, 'yahoo', one_year_ago, todays_date)
+        return df
+    
+    def stock_five_year_data(self, ticker_symbol): 
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        today = datetime.now()
+        five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
+
+        df = data.DataReader(ticker_symbol, 'yahoo', five_years_ago, todays_date)
+        #only return the closing price of the stock 
+        df = df.loc[:,'Adj Close']
+        return df
+    
+    def todays_data(self, end_date): 
+        # Return the stock information with the provided dates given
+        user_ticker_symbol = self.stock_ticker
+        #print("end date: ", end_date)
+        df = data.DataReader(user_ticker_symbol, 'yahoo', end_date)
+        #print("Dataframe:" ,df)
+        return df
+#------------------------------------------------------------------------------
+# -------------------------Co-variance matrix----------------------------------    
+    def ticker_symbols(self): 
+        #array to store prices
+        symbols = []
+        symbols_list = self.stock_ticker
+        #print("stock list: ", symbols_list)
+        start = self.start_date
+        for ticker in symbols_list:     
+            #r = web.DataReader(ticker, 'yahoo', start)  
+            stock_dataframe =  data.DataReader(ticker, 'yahoo', start)
+            #stock_dataframe = self.ticker_data_1()
+            stock_dataframe['Symbol'] = ticker    
+            symbols.append(stock_dataframe)
+        return symbols
+
+    def clean_data(self): 
+        
+        symbols = self.ticker_symbols()
+        df = pd.concat(symbols)
+        df = df.reset_index()
+        df = df[['Date', 'Close', 'Symbol']]
+        #df.head()
+        df_pivot = df.pivot('Date','Symbol','Close').reset_index()
+        print("****************************")
+        df_pivot.head()
+
+        return df_pivot
+
+    def correlation_data(self): 
+
+        df_pivot = self.clean_data()
+        corr_df = df_pivot.corr(method='pearson')
+
+        corr_df.head().reset_index()
+        corr_df.head()
+        # print("corr_df")
+        # print(corr_df)
+        return corr_df
+#------------------------------------------------------------------------------
 
     def list_of_stocks_data(self, stocks_list): 
         
