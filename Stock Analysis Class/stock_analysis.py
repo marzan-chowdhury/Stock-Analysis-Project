@@ -141,14 +141,38 @@ class Stock:
         #only return the closing price of the stock 
         df = df.loc[:,'Adj Close']
         return df
-    
+
     def todays_data(self, end_date): 
         # Return the stock information with the provided dates given
+
         user_ticker_symbol = self.stock_ticker
-        #print("end date: ", end_date)
-        df = data.DataReader(user_ticker_symbol, 'yahoo', end_date)
-        #print("Dataframe:" ,df)
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        today = datetime.now()
+        five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
+        print("end date: ", end_date)
+        df = data.DataReader(user_ticker_symbol, 'yahoo', five_years_ago, todays_date)
+        print("Dataframe:" ,df)
         return df
+    
+    def todays_data_copy(self): 
+        # Return the stock information with the provided dates given
+
+        user_ticker_symbol = self.stock_ticker
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        today = datetime.now()
+        five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
+        df = data.DataReader(user_ticker_symbol, 'yahoo', five_years_ago, todays_date)
+        print("Dataframe:" ,df)
+        return df
+
+    
+    # def todays_data(self, end_date): 
+    #     # Return the stock information with the provided dates given
+    #     user_ticker_symbol = self.stock_ticker
+    #     #print("end date: ", end_date)
+    #     df = data.DataReader(user_ticker_symbol, 'yahoo', end_date)
+    #     #print("Dataframe:" ,df)
+    #     return df
 #------------------------------------------------------------------------------
 # -------------------------Co-variance matrix----------------------------------    
     def ticker_symbols(self): 

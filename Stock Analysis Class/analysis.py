@@ -120,9 +120,13 @@ class Analysis(Stock):
     
     # def todays_data(self, end_date): 
     #     # Return the stock information with the provided dates given
+
     #     user_ticker_symbol = self.stock_ticker
+    #     todays_date = datetime.now().strftime("%d/%m/%Y")
+    #     today = datetime.now()
+    #     five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
     #     print("end date: ", end_date)
-    #     df = data.DataReader(user_ticker_symbol, 'yahoo', end_date)
+    #     df = data.DataReader(user_ticker_symbol, 'yahoo', five_years_ago, todays_date)
     #     print("Dataframe:" ,df)
     #     return df
 
@@ -130,39 +134,17 @@ class Analysis(Stock):
 
 #--------does the same as the simple_rate_return function---------------------------------------------#
 #-----------------------------------------------------------------------------------------------------#
-    # def simple_daily_rate_return(self, starting_price): 
-  
-    #     todays_date = datetime.now() - timedelta(1)#.strftime("%Y-%m-%d")
-    #     todays_date = todays_date.strftime("%Y-%m-%d")
-    #     #print("Current Date: ", current_date)
-    #     recent_df = self.todays_data(todays_date) 
-    #     #print("Current dataframe: ", recent_df) 
-    #     todays_closing_price = recent_df['Close']
-    #     #df = recent_df['Adj Close'].to_frame().reset_index()
-
-    #     #todays_closing_price = df.loc[:,'Adj Close']
-    #     todays_closing_price = recent_df.loc[:,'Adj Close']
-    #     #print("Todays closing price: ", todays_closing_price)
-    #     test = todays_closing_price.iloc[-1]
-    #     todays_closing_price = test
-    #     #print("test: ", test)
-    #     #print(df)
-    #     #print("Todays closing price is: ", todays_closing_price)
-    #     #print(starting_price)
-    #     simple_rate_return_1 = ((todays_closing_price - starting_price) / starting_price) * 100
-    #     #print("returns  = ", simple_rate_return_1)
-    #     return simple_rate_return_1
-#-----------------------------------------------------------------------------------------------------#
-
-    def simple_rate_return(self): 
-        
-        #get the price the stock was bought at
-        stock_prices = self.stock_prices
+    def simple_daily_rate_return(self): 
+        starting_price = self.stock_prices
         todays_date = datetime.now() - timedelta(1)#.strftime("%Y-%m-%d")
         todays_date = todays_date.strftime("%Y-%m-%d")
+        #print("Current Date: ", current_date)
         recent_df = self.todays_data(todays_date) 
+        #print("Current dataframe: ", recent_df) 
         todays_closing_price = recent_df['Close']
+        #df = recent_df['Adj Close'].to_frame().reset_index()
 
+        #todays_closing_price = df.loc[:,'Adj Close']
         todays_closing_price = recent_df.loc[:,'Adj Close']
         #print("Todays closing price: ", todays_closing_price)
         test = todays_closing_price.iloc[-1]
@@ -170,10 +152,32 @@ class Analysis(Stock):
         #print("test: ", test)
         #print(df)
         #print("Todays closing price is: ", todays_closing_price)
-        #print(stock_prices)
-        simple_rate_return_1 = ((todays_closing_price - stock_prices) / stock_prices) * 100
+        #print(starting_price)
+        simple_rate_return_1 = ((todays_closing_price - starting_price) / starting_price) * 100
         #print("returns  = ", simple_rate_return_1)
         return simple_rate_return_1
+#-----------------------------------------------------------------------------------------------------#
+
+    # def simple_rate_return(self): 
+        
+    #     #get the price the stock was bought at
+    #     stock_prices = self.stock_prices
+    #     todays_date = datetime.now() - timedelta(1)#.strftime("%Y-%m-%d")
+    #     todays_date = todays_date.strftime("%Y-%m-%d")
+    #     recent_df = self.todays_data(todays_date) 
+    #     todays_closing_price = recent_df['Close']
+
+    #     todays_closing_price = recent_df.loc[:,'Adj Close']
+    #     #print("Todays closing price: ", todays_closing_price)
+    #     test = todays_closing_price.iloc[-1]
+    #     todays_closing_price = test
+    #     #print("test: ", test)
+    #     #print(df)
+    #     #print("Todays closing price is: ", todays_closing_price)
+    #     #print(stock_prices)
+    #     simple_rate_return_1 = ((todays_closing_price - stock_prices) / stock_prices) * 100
+    #     #print("returns  = ", simple_rate_return_1)
+    #     return simple_rate_return_1
 
 #get the expected return of one stock
 #based on the 5 year annual return history
@@ -183,15 +187,16 @@ class Analysis(Stock):
         yearly_returns = self.yearly_stock_return(stock)
         #using the mean method, we can calculate the mean in the datafram by specifying which column to use
         mean = yearly_returns.mean(axis=0)
+        print("Yearly mean: ", mean)
         return mean
     
     def expected_5_year_return(self): 
         #get the stocks
         stock_list = self.stock_ticker
-        #get the 5 year data for the stocks 
-        stock_five_year_data = self.stock_five_year_data(stock_list)
-        #get the yeraly returns of the stocks in the portfolio
-        yearly_returns = self.yearly_stock_return(stock_list)
+        # #get the 5 year data for the stocks 
+        # stock_five_year_data = self.stock_five_year_data(stock_list)
+        # #get the yeraly returns of the stocks in the portfolio
+        # yearly_returns = self.yearly_stock_return(stock_list)
         #calculate the mean for each stock (mean is representing the expected return) and store this in a list
         mean_in_portfolio = self.expected_return(stock_list)
         #we now have a list of expected returns which will be used to calculate the portfolio expected return
@@ -223,7 +228,7 @@ class Analysis(Stock):
     def portfolio_return(self):
         
         portfolio_prices = self.stock_prices
-        simple_return_assets = self.simple_rate_return()
+        simple_return_assets = self.simple_daily_rate_return()#self.simple_rate_return()
         simple_return_assets = simple_return_assets.values.tolist()
         print("simple return: ", simple_return_assets)
         wieghts_of_assets = self.weights_of_portfolio()
@@ -523,8 +528,9 @@ end = '2021-04-08'
 # start = '07/04/2021'
 # end = '08/04/2021'
 #works with a list of stocks!
-list_stocks = ['TSLA', 'AAPL']
-prices_of_stocks = [500, 100]
+#list_stocks = ['TSLA', 'AAPL']
+list_stocks = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
+prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
 #x = Analysis('TSLA', start, end, 'MARZAN')
 x = Analysis(list_stocks, prices_of_stocks, start, end)
 #using the parent methods to test if it works
@@ -538,7 +544,7 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 
 #simp_return = x.simple_rate_return(prices_of_stocks)
 
-# simp_return = x.simple_rate_return()
+# simp_return = x.simple_daily_rate_return()
 # print("Returns: ", simp_return)
 # print("***************************")
 
@@ -557,8 +563,8 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # x.weights_of_portfolio()
 
 # print("***************************")
-print("Portfolio returns")
-x.portfolio_return()
+# print("Portfolio returns")
+# x.portfolio_return()
 
 # print("***************************")
 # print("Varianmce of tesla")
@@ -580,10 +586,12 @@ x.portfolio_return()
 # print("Correlation of stocks")
 # correlation_stocks = x.correlation_data()
 # print(correlation_stocks)
-print("***************************")
-x.expected_5_year_return()
-print("***************************")
-x.expected_portfolio_return()
+# print("***************************")
+# print("***************************")
+# print("***************************")
+# x.expected_5_year_return()
+# print("***************************")
+# x.expected_portfolio_return()
 
 
 # start = x.get_start_date()
