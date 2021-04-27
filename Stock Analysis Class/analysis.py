@@ -203,7 +203,11 @@ class Analysis(Stock):
         print("mean in the portfolio: ", mean_in_portfolio)
         return mean_in_portfolio
         #print("yearly returns: ", yearly_returns)
-    
+#------------------------------------------------------------------------------------------------------------------------------#
+# This function will return the expected return of the portfolio                                                               #                               
+# The expcetd return is based off using the annual return of the stock                                                         #
+# we get the last 5 years annual return and multiply it by the weight the asset holds in the portfolio                         #
+#------------------------------------------------------------------------------------------------------------------------------#  
     def expected_portfolio_return(self): 
         
         expected_portfolio_return = 0 
@@ -218,8 +222,31 @@ class Analysis(Stock):
             expected_portfolio_return += i * j 
         expected_portfolio_return = str(round(expected_portfolio_return, 2)) + '%'
         print("The expected returns for the portfolio is: ", expected_portfolio_return)
+#------------------------------------------------------------------------------------------------------------------------------#
+# This function will return the expected return of the portfolio using the quarterly price changes over the last 5 years       #                               
+# we get the last 5 years of quarterly price changes and multiply it by the weight the asset holds in the portfolio            #
+# This will return the quarterly portfolio return                                                                              #
+#------------------------------------------------------------------------------------------------------------------------------#  
+    def expected_quarterly_portfolio_return(self): 
+        weights_in_portfolio = self.weights_of_portfolio()
+        expected_ror = self.expected_return_ror()
+        expected_ror = expected_ror.values.tolist()
+        quarterly_portfolio_return = 0
+        for i,j in zip(expected_ror, weights_in_portfolio): 
+            quarterly_portfolio_return += i * j 
+        print(quarterly_portfolio_return)
+        return quarterly_portfolio_return * 100
 
-
+#------------------------------------------------------------------------------------------------------------------------------#
+# This function will return the exp[ected return of each stock in the portfolio                                                #                               
+# The expcetd return is based off using the simple rate of return                                                              #
+# The simple rate of return uses the last 5 year data of the stock and calculates the percentage change in prices qurterly     #                                                     
+#------------------------------------------------------------------------------------------------------------------------------#
+    def expected_return_ror(self): 
+        simple_rate_of_return = self.simple_rate_of_return()
+        expected_ror = simple_rate_of_return.mean()
+        #print("eRoR: ", expected_ror)
+        return expected_ror
 #------------------------------------------------------------------------------------------------------------------------------#
 # This function will return the portfolio return                                                                               #
 # The portfolio return is based on the the current price of the stocks in the portfolio against the prices they were bought at #
@@ -415,14 +442,45 @@ class Analysis(Stock):
         print(corr_matrtix)
         return corr_matrtix
 
-    def covariance_stocks(self): 
+    def covariance_stocks_yearly_returns(self): 
+        list_of_stocks = self.stock_ticker
+        annual_returns = self.yearly_stock_return(list_of_stocks)
+        covariance = annual_returns.cov()
+        return covariance   
+    
+    def covariance_stocks_simple_returns(self): 
+        #get the simple rate of return 
+        simple_rate_return = self.simple_rate_of_return()
+        covariance = simple_rate_return.cov()
+        return covariance   
+
+    def simple_rate_of_return(self): 
 
         list_of_stocks = self.stock_ticker
         stock_five_year_data = self.stock_five_year_data(list_of_stocks)
-        annual_returns = self.yearly_stock_return(list_of_stocks)
-        
-        covariance = annual_returns.cov()
-        return covariance   
+        stock_data_adj_close = stock_five_year_data
+        #refine the df to get the quarterly stock data over the previous 5 years  
+        stock_data_adj_close  = stock_data_adj_close.resample('Q').last()
+
+        simple_rate_of_return = stock_data_adj_close.pct_change()
+
+        return simple_rate_of_return
+    
+    def sharpe_ratio(self): 
+        weights_in_portfolio = self.weights_of_portfolio()
+        portfolio_weight = np.array(weights_in_portfolio)
+        covariance = self.covariance_stocks_simple_returns()
+ 
+        #get the expected quarterly returns
+        quarterly_portfolio_return = self.expected_quarterly_portfolio_return()
+        portfolio_std = np.sqrt(np.dot(portfolio_weight.T, np.dot(covariance, portfolio_weight)))
+        #get the decimal value instead of percentage
+        quarterly_portfolio_return = quarterly_portfolio_return / 100
+
+        sharpe_ratio = (portfolio_return_ror - 0) / portfolio_std
+        print("sharpe ratio: ", sharpe_ratio)
+        return sharpe_ratio 
+
 
     def daily_return(self): 
 
@@ -617,10 +675,10 @@ end = '2021-04-08'
 # start = '07/04/2021'
 # end = '08/04/2021'
 #works with a list of stocks!
-#list_stocks = ['TSLA', 'AAPL']
-list_stocks = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
-prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
-#prices_of_stocks = [800, 200]
+list_stocks = ['TSLA', 'AAPL']
+#list_stocks = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
+#prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
+prices_of_stocks = [800, 200]
 #x = Analysis('TSLA', start, end, 'MARZAN')
 x = Analysis(list_stocks, prices_of_stocks, start, end)
 #using the parent methods to test if it works
@@ -682,17 +740,22 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # x.expected_5_year_return()
 # print("***************************")
 # x.expected_portfolio_return()
+# print("***************************")
+# x.expected_return_ror()
+# print("***************************")
+# x.expected_quarterly_portfolio_return()
+x.sharpe_ratio()
 
 # x.testing_covariance()
-#x.covariance_stocks()
+#x.covariance_stocks_yearly_returns()
 # test = x.correlation_coefficient()
 # y = test.values.tolist()
 # print(y)
-# x.correlation_coefficient()
+#x.correlation_coefficient()
 
 
-print("***************************")
-x.standard_deviation_portfolio()
+# print("***************************")
+# x.standard_deviation_portfolio()
 
 
 # start = x.get_start_date()
