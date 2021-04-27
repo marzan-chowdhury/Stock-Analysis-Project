@@ -32,35 +32,30 @@ class Prediction():
     stock_data = self.get_stock_data()
     #get the percentage change of the stocks
     returns = stock_data.pct_change()
-
     return returns
   
   def get_last_price(self): 
 
     stock_data = self.get_stock_data()
-    print(stock_data)
+    #convert dataframe to a list
     stock_data = stock_data.values.tolist()
     #get the last price of the stock
     last_price = stock_data[-1]
-    print("last price = ", last_price)
     final_price = 0
     for i in last_price:
       final_price += i
-    print("final price: ", final_price)
-
     return final_price
   
   def simulations(self): 
     num_simulations = 100 
     #how many days into the future we are going int
-    num_days = 1260 #252 trading days 
+    num_days = 252#1260 #252 trading days 
     return num_simulations, num_days
 
   def monte_carlo_sim(self):
 
     #get the number of simulations, days
     num_simulations, num_days = self.simulations()
-
     #create a dataframe for our simulations 
     simulation_df = pd.DataFrame() 
     #get the returns (percentage change of the stock data)
@@ -91,7 +86,6 @@ class Prediction():
         count += 1 
 
       simulation_df[x] = price_series
-
     return simulation_df
 
   def plot_monte_carlo_sim(self): 
@@ -104,8 +98,8 @@ class Prediction():
     last_price = self.get_last_price()
 
     fig = plt.figure() 
-    fig.suptitle('Monte Carlo Simulation of ' + str(ticker_symbol))
-    
+    fig.suptitle('Monte Carlo Simulation of '+ str(ticker_symbol))
+    plt.plot(simulation_df)
     plt.axhline(y = last_price, color = 'r', linestyle = '-')
     plt.xlabel('Day')
     plt.ylabel('Price')
@@ -114,11 +108,14 @@ class Prediction():
 
 start = '2019-04-07'
 end = '2021-04-08'
+
 list_stocks = ['TSLA']
 
 x = Prediction(list_stocks, start, end)
 x.plot_monte_carlo_sim()
-#x.get_last_price()
+x.percentage_change()
+x.get_last_price()
+x.monte_carlo_sim()
 
 
 
