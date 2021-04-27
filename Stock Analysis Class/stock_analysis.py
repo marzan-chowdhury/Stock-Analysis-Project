@@ -28,17 +28,12 @@ class Stock:
     def ticker_data(self): 
         
         # Return the stock information with the provided dates given 
-
         start_date = self.start_date
         end_date = self.end_date
-
         user_ticker_symbol = self.stock_ticker
-
         df = data.DataReader(user_ticker_symbol, 'yahoo', start_date, end_date)
-        #cols = ('Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close')
-        #df.reindex(columns=cols)
-        #return df.head(15)
         return df
+        
     def stock_one_day_data(self, ticker_symbol):     
 
         todays_date = datetime.now().strftime("%Y-%m-%d")
@@ -195,9 +190,7 @@ class Stock:
         df = pd.concat(symbols)
         df = df.reset_index()
         df = df[['Date', 'Close', 'Symbol']]
-        #df.head()
         df_pivot = df.pivot('Date','Symbol','Close').reset_index()
-        print("****************************")
         df_pivot.head()
 
         return df_pivot
@@ -209,10 +202,19 @@ class Stock:
 
         corr_df.head().reset_index()
         corr_df.head()
-        # print("corr_df")
-        # print(corr_df)
         return corr_df
 #------------------------------------------------------------------------------
+    def flatten_list(self, _2d_list):
+        flat_list = []
+        # Iterate through the outer list
+        for element in _2d_list:
+            if type(element) is list:
+                # If the element is of type list, iterate through the sublist
+                for item in element:
+                    flat_list.append(item)
+            else:
+                flat_list.append(element)
+        return flat_list
 
     def list_of_stocks_data(self, stocks_list): 
         

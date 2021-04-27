@@ -319,21 +319,110 @@ class Analysis(Stock):
 
         return std_stock
     
+    def standard_deviation_portfolio(self): 
 
-    def correlation_of_stocks(self): 
+        #get the weights of the portfolio
+        weights_in_portfolio = self.weights_of_portfolio()
+        #print(weights_in_portfolio)
+
+        #get the standard deviations of each stock in the portfolio: 
+
+        #get list of stocks in the portfolio 
+        stock_list = self.stock_ticker
+        #create an empty list to store the std of each stock in the portfolio 
+        std_in_portfolio = []
+        #loop through each stock in the portfolio to get the individual std 
+        for i in stock_list: 
+            std_in_portfolio.append(self.standard_deviation_stock(i))
+        # print("**************")
+        # print("STD in portfolio: ", std_in_portfolio)
+        # print("**********")
+        # print(weights_in_portfolio)
+        
+        #create empty list to store the squared weights and squared standard deviations
+        squared_weights = []
+        squared_deviation = []
+        #loop through the wights list and standard deviation list of the portfolio
+        for i in weights_in_portfolio: 
+            square = i ** 2
+            squared_weights.append(square)
+        #print("squared weights: ", squared_weights)
+        for i in std_in_portfolio:
+            square_std = i ** 2
+            squared_deviation.append(square_std)
+        #print("squared std: ", squared_deviation)
+
+        #get the correlation of the stocks in the portfolio
+        stocks_correlation = self.correlation_coefficient()
+        #print(stocks_correlation)
+        stocks_correlation = stocks_correlation.values.tolist() 
+        #flatten the nested list into a single list
+        flat_list = self.flatten_list(stocks_correlation)
+        #get the average correlation of the portfolio 
+        sum_flat_list = 0 
+        length_flat_list = len(flat_list)
+        for i in flat_list:
+            sum_flat_list += i
+        average_correlation = sum_flat_list / length_flat_list
+        #print("average correlation: ", average_correlation)
+
+        #standard deviation formula of a portfolio 
+        #get all the weights multiplied against each other 
+        weights_multiplied = 1 
+        for i in weights_in_portfolio: 
+            weights_multiplied = weights_multiplied * i 
+        print("all weights multiplied", weights_multiplied)
+        #get all std multiplied against each other 
+        std_multiplied = 1 
+        for j in std_in_portfolio: 
+            std_multiplied = std_multiplied * j
+        print("all std multiplied", std_multiplied)
+
+        #this is part of the std portfolio formula 
+        # 2 multiplied by the weights multiplied by the stand deviation multiplied by correlation 
+        weights_std_correlation_data = 2 * weights_multiplied * std_multiplied
+        #print(weights_multiplied)
+        #beginning part of the std portfolio formula 
+        #multiply each std squared against its corresponding weights squared 
+        sum_weights_std_squared = 0
+        for i, j in zip(squared_weights, squared_deviation):
+            sum_weights_std_squared += i * j 
+
+        #print("sum of weights and std combined: ", sum_weights_std_squared)
+
+        variance_portfolio = sum_weights_std_squared + weights_std_correlation_data
+        print("variance portfolio: ", variance_portfolio)
+        #square root variance to get std
+        standard_deviation_portfolio = math.sqrt(variance_portfolio)
+        print("std of portfolio: ", standard_deviation_portfolio)
+
+        return standard_deviation_portfolio
+    
+    def variance_of_portfolio(self): 
+
+        standard_deviation_portfolio = self.standard_deviation_portfolio()
+        variance_of_portfolio = standard_deviation_portfolio ** 2
+
+        return variance_of_portfolio       
+
+    def correlation_coefficient(self): 
+        
+        stock_list = self.stock_ticker
+        stock_one_year_data = self.stock_one_year_data(stock_list)
+        portfolio = stock_one_year_data['Adj Close']
+
+        corr_matrtix = portfolio.corr()
+        print(corr_matrtix)
+        return corr_matrtix
+
+    def covariance_stocks(self): 
 
         list_of_stocks = self.stock_ticker
         stock_five_year_data = self.stock_five_year_data(list_of_stocks)
         annual_returns = self.yearly_stock_return(list_of_stocks)
-        #stocks_returns = np.log(annual_returns/annual_returns.shift(1))
-
-        print("stock returns")
-        print(annual_returns)
-        print("correlation")
-        corr_matrix = np.corrcoef(annual_returns)
-        #corr_matrix = stocks_returns.corr()
-        print (corr_matrix)
-
+        
+        covariance = annual_returns.cov()
+        return covariance   
 
     def daily_return(self): 
 
@@ -531,6 +620,7 @@ end = '2021-04-08'
 #list_stocks = ['TSLA', 'AAPL']
 list_stocks = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
 prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
+#prices_of_stocks = [800, 200]
 #x = Analysis('TSLA', start, end, 'MARZAN')
 x = Analysis(list_stocks, prices_of_stocks, start, end)
 #using the parent methods to test if it works
@@ -592,6 +682,17 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # x.expected_5_year_return()
 # print("***************************")
 # x.expected_portfolio_return()
+
+# x.testing_covariance()
+#x.covariance_stocks()
+# test = x.correlation_coefficient()
+# y = test.values.tolist()
+# print(y)
+# x.correlation_coefficient()
+
+
+print("***************************")
+x.standard_deviation_portfolio()
 
 
 # start = x.get_start_date()
