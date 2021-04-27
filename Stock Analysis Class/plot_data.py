@@ -91,13 +91,27 @@ class Visualize(Analysis):
         plt.tight_layout()
         plt.show()
 
-    def covariance_matrix(self): 
+    def correlation_matrix(self): 
 
         corr_df = self.correlation_data()
         plt.figure(figsize=(13, 8))
         seaborn.heatmap(corr_df, annot=True, cmap='RdYlGn')
-        plt.title('CO-Variance (Correlation between stocks)')
+        plt.title('Correlation between stocks')
         plt.show()
+    
+    def covariance_matrix(self): 
+        covariance_data = self.covariance_stocks_simple_returns()
+        seaborn.heatmap(covariance_data, annot=True, cmap='RdYlGn')
+        plt.title('CO-Variance between stocks')
+        plt.show()
+
+        # plt.imshow(covariance_data, cmap='hot', interpolation='none')
+        # plt.colorbar()
+        # plt.xticks(rotation='vertical')
+        # plt.xticks(range(len(covariance_data)), covariance_data.columns)
+        # plt.yticks(range(len(covariance_data)), covariance_data.columns)
+        # plt.show()
+
 
 #symbols_list = ['V', 'SQ', 'TSLA', 'BTC', 'PYPL']
 #'2222.SR' --> ARAMCO OIL COMPANY
@@ -110,10 +124,11 @@ prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
 x = Visualize(symbols_list, prices_of_stocks, start, end)
 
 
+#x.correlation_matrix()
 x.covariance_matrix()
 #x.quarterly_data()
 #print(x.quarterly_simple_rate_return())
 #print(x.stock_performance())
 # x.expected_rate_return()
 # x.present_variance()
-x.present_std_stock()
+#x.present_std_stock()
