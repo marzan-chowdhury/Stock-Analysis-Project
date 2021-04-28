@@ -303,7 +303,7 @@ class Analysis(Stock):
         stock_five_year_data = self.stock_five_year_data(ticker_symbol)
         #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
         #get the annual return of the stock over the previous 5 years
-        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() * 100
+        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() 
 
 
         #print("Yearly Returns: ", stock_five_year_returns)
@@ -466,6 +466,35 @@ class Analysis(Stock):
 
         return simple_rate_of_return
     
+    def quarterly_mean(self): 
+
+        simple_rate_of_return = self.simple_rate_of_return()
+        quarterly_mean = simple_rate_of_return.mean()
+
+        return quarterly_mean
+
+    def stock_daily_returns(self): 
+        stock_list = self.stock_ticker
+        stock_data = self.ticker_data()
+        stock_daily_returns = stock_data['Adj Close'].pct_change()
+
+        return stock_daily_returns
+    
+    def stock_daily_std(self):
+
+        stock_daily_returns = self.stock_daily_returns()
+        stock_daily_std = stock_daily_returns.std()
+
+        return stock_daily_std
+    
+    def stock_daily_var(self):
+
+        stock_daily_returns = self.stock_daily_returns()
+        stock_daily_var = stock_daily_returns.var()
+
+        return stock_daily_var
+
+
     def sharpe_ratio(self): 
         weights_in_portfolio = self.weights_of_portfolio()
         portfolio_weight = np.array(weights_in_portfolio)
@@ -477,7 +506,7 @@ class Analysis(Stock):
         #get the decimal value instead of percentage
         quarterly_portfolio_return = quarterly_portfolio_return / 100
 
-        sharpe_ratio = (portfolio_return_ror - 0) / portfolio_std
+        sharpe_ratio = (quarterly_portfolio_return - 0) / portfolio_std
         print("sharpe ratio: ", sharpe_ratio)
         return sharpe_ratio 
 
@@ -744,7 +773,8 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # x.expected_return_ror()
 # print("***************************")
 # x.expected_quarterly_portfolio_return()
-x.sharpe_ratio()
+# x.sharpe_ratio()
+# x.variance_of_individual_stock('TSLA')
 
 # x.testing_covariance()
 #x.covariance_stocks_yearly_returns()
