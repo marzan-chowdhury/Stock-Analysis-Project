@@ -1,4 +1,6 @@
-from analysis import Analysis
+import sys
+sys.path.append("C:/University/Level 6/Project Planning/Project Code/Stock Analysis Class")
+from stock_analysis import Stock
 import numpy as np
 #-----------------------------------------------#
 #portfolio optimisation and efficietn frontier  #
@@ -18,7 +20,7 @@ import matplotlib.pyplot as plt
 import seaborn
 
 
-class Optimization(Analysis): 
+class Optimization(Stock): 
 
     def __init__(self, stock_ticker, stock_prices, start_date, end_date):
         super().__init__(stock_ticker, stock_prices, start_date, end_date)
@@ -143,14 +145,14 @@ class Optimization(Analysis):
         random_portfolios.plot.scatter(x='Volatility', y='Returns', figsize=(10,8), grid=True)
 
 
-        stock_covariance = self.covariance_stocks_simple_returns()
-        quarterly_mean = self.quarterly_mean()
-        stock_data_quarterly_returns = self.simple_rate_of_return()
+        # stock_covariance = self.covariance_stocks_simple_returns()
+        # quarterly_mean = self.quarterly_mean()
+        # stock_data_quarterly_returns = self.simple_rate_of_return()
 
-        single_asset_std=np.sqrt(np.diagonal(stock_covariance))
-        plt.scatter(single_asset_std,quarterly_mean,marker='X',color='red',s=200)
-        for i, txt in enumerate(stock_data_quarterly_returns.keys()):
-            plt.annotate(txt, (single_asset_std[i], quarterly_mean[i]), size=14, xytext=(10,10), ha='left', textcoords='offset points')
+        # single_asset_std=np.sqrt(np.diagonal(stock_covariance))
+        # plt.scatter(single_asset_std,quarterly_mean,marker='X',color='red',s=200)
+        # for i, txt in enumerate(stock_data_quarterly_returns.keys()):
+        #     plt.annotate(txt, (single_asset_std[i], quarterly_mean[i]), size=14, xytext=(10,10), ha='left', textcoords='offset points')
 
         plt.xlabel('Volatility (Std. Deviation)', fontsize = 20)
         plt.ylabel('Expected Returns', fontsize = 20)
@@ -162,8 +164,8 @@ class Optimization(Analysis):
 
 start = '2019-04-07'
 end = '2021-04-23'
-symbols_list = ['AMZN','GOOG', 'TSLA', 'AAPL']
-prices_of_stocks = [20, 11, 25, 44]
+symbols_list = ['AMZN','NVDA', 'TSLA', 'AAPL']
+prices_of_stocks = [20, 1100, 250, 44]
 x = Optimization(symbols_list, prices_of_stocks, start, end)
 
 #x.generate_random_portfolios()

@@ -1,3 +1,7 @@
+import sys
+sys.path.append("C:/University/Level 6/Project Planning/Project Code/Stock Analysis Class")
+from stock_analysis import Stock
+
 from pandas_datareader import data
 import pandas as pd 
 import datetime as dt
@@ -11,12 +15,13 @@ import dateutil.relativedelta
 import math
 style.use('ggplot')
 
-class Prediction(): 
+class Prediction(Stock): 
 
-  def __init__(self, stock_ticker, start_date, end_date):
-    self.stock_ticker =  stock_ticker
-    self.start_date = start_date
-    self.end_date = end_date
+  def __init__(self, stock_ticker, stock_prices, start_date, end_date):
+    # self.stock_ticker =  stock_ticker
+    # self.start_date = start_date
+    # self.end_date = end_date
+    super().__init__(stock_ticker, stock_prices, start_date, end_date)
   
   def get_stock_data(self):  
     # Return the stock information with the provided dates given 
@@ -106,12 +111,12 @@ class Prediction():
     plt.show() 
 
 
-start = '2019-04-07'
+start = '2015-04-07'
 end = '2021-04-08'
-
+prices_of_stocks = [800]
 list_stocks = ['TSLA']
 
-x = Prediction(list_stocks, start, end)
+x = Prediction(list_stocks, prices_of_stocks, start, end)
 x.plot_monte_carlo_sim()
 x.percentage_change()
 x.get_last_price()

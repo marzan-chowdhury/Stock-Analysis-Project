@@ -160,7 +160,6 @@ class Stock:
         print("Dataframe:" ,df)
         return df
 
-    
     # def todays_data(self, end_date): 
     #     # Return the stock information with the provided dates given
     #     user_ticker_symbol = self.stock_ticker
@@ -215,6 +214,69 @@ class Stock:
             else:
                 flat_list.append(element)
         return flat_list
+#------------------------------------------------------------------------------
+# -------------------------Portfolio Optimization Class---------------------------------- 
+    def quarterly_mean(self): 
+
+        simple_rate_of_return = self.simple_rate_of_return()
+        quarterly_mean = simple_rate_of_return.mean()
+
+        return quarterly_mean
+
+    def expected_5_year_return(self): 
+        #get the stocks
+        stock_list = self.stock_ticker
+        # #get the 5 year data for the stocks 
+        # stock_five_year_data = self.stock_five_year_data(stock_list)
+        # #get the yeraly returns of the stocks in the portfolio
+        # yearly_returns = self.yearly_stock_return(stock_list)
+        #calculate the mean for each stock (mean is representing the expected return) and store this in a list
+        mean_in_portfolio = self.expected_return(stock_list)
+        #we now have a list of expected returns which will be used to calculate the portfolio expected return
+        print("mean in the portfolio: ", mean_in_portfolio)
+        return mean_in_portfolio
+        #print("yearly returns: ", yearly_returns)
+        
+    def expected_return(self, stock): 
+        
+        #expected return can be calculated from using the mean 
+        yearly_returns = self.yearly_stock_return(stock)
+        #using the mean method, we can calculate the mean in the datafram by specifying which column to use
+        mean = yearly_returns.mean(axis=0)
+        print("Yearly mean: ", mean)
+        return mean
+    
+    def yearly_stock_return(self, ticker_symbol): 
+        
+        #over a 5 year period: 
+
+        stock_five_year_data = self.stock_five_year_data(ticker_symbol)
+        #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
+        #get the annual return of the stock over the previous 5 years
+        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() 
+
+
+        #print("Yearly Returns: ", stock_five_year_returns)
+        return stock_five_year_returns
+
+    def covariance_stocks_simple_returns(self): 
+        #get the simple rate of return 
+        simple_rate_return = self.simple_rate_of_return()
+        covariance = simple_rate_return.cov()
+        return covariance   
+    
+    def simple_rate_of_return(self): 
+
+        list_of_stocks = self.stock_ticker
+        stock_five_year_data = self.stock_five_year_data(list_of_stocks)
+        stock_data_adj_close = stock_five_year_data
+        #refine the df to get the quarterly stock data over the previous 5 years  
+        stock_data_adj_close  = stock_data_adj_close.resample('Q').last()
+
+        simple_rate_of_return = stock_data_adj_close.pct_change()
+
+        return simple_rate_of_return
+#-----------------------------------------------------------------------------------------------------------
 
     def list_of_stocks_data(self, stocks_list): 
         
@@ -228,18 +290,6 @@ class Stock:
         #df.reindex(columns=cols)
         #return df.head(15)
         return df
-
-    def example(self, start, end): 
-
-        # Remove this method as this is displayinhg the info in a graph
-        # Most likely be used in another class 
-        stock_data = self.ticker_data(start, end)
-        closing_price = stock_data['Adj Close']
-        closing_price.plot()
-        plt.xlabel('Time')
-        plt.ylabel('Price')
-        plt.title('Adjusted Closing Price')
-        plt.show()
 
     def present_stock_data(self): 
 

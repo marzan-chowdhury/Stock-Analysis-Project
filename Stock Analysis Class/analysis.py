@@ -12,124 +12,6 @@ class Analysis(Stock):
     def __init__(self, stock_ticker, stock_prices, start_date, end_date):
         super().__init__(stock_ticker, stock_prices, start_date, end_date)
 
-
-#------------No longer needed (in parent class)-------------------
-#-----------------------------------------------------------------
-    # def stock_one_day_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%Y-%m-%d")
-        
-    #     today = datetime.now().strftime("%d/%m/%Y")
-    #     print("Todays date: ", today)
-    #     yesterday = datetime.now() - timedelta(1)
-    #     # yesterday = today - datetime.timedelta(days=1)
-    #     yesterday = yesterday.strftime("%Y-%m-%d")
-    #     print("yesterdays date:", yesterday) 
-    #     df = data.DataReader(ticker_symbol, 'yahoo', yesterday, todays_date)
-    #     return df
-
-    # def stock_one_day_2_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-        
-    #     today = datetime.now().strftime("%Y-%m-%d")#("%d/%m/%Y")
-    #     print("Todays date: ", today)
-    #     yesterday = datetime.now() - timedelta(1)
-    #     # yesterday = today - datetime.timedelta(days=1)
-    #     yesterday = yesterday.strftime("%Y-%m-%d")#("%d/%m/%Y")
-    #     print("Yesterday date:", yesterday) 
-    #     df = data.DataReader(ticker_symbol, 'yahoo', yesterday, todays_date)
-    #     return df
-    
-    # def stock_one_week_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-        
-    #     today = datetime.now().strftime("%Y-%m-%d")#("%d/%m/%Y")
-    #     print("Todays date: ", today)
-    #     last_week = datetime.now() - timedelta(7)
-    #     # yesterday = today - datetime.timedelta(days=1)
-    #     last_week = last_week.strftime("%Y-%m-%d")#("%d/%m/%Y")
-    #     print("Last week date:", last_week) 
-    #     df = data.DataReader(ticker_symbol, 'yahoo', last_week, today)
-    #     return df
-    
-    # def stock_one_month_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-        
-    #     today = datetime.now().strftime("%Y-%m-%d")#("%d/%m/%Y")
-    #     print("Todays date: ", today)
-    #     last_month = datetime.now() - timedelta(31)
-    #     # yesterday = today - datetime.timedelta(days=1)
-    #     last_month = last_month.strftime("%Y-%m-%d")#("%d/%m/%Y")
-    #     print("Last month date:", last_month) 
-    #     df = data.DataReader(ticker_symbol, 'yahoo', last_month, todays_date)
-    #     return df
-    
-    # def stock_six_month_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-        
-    #     today = datetime.now()
-    #     six_months_ago = today - dateutil.relativedelta.relativedelta(months=6)
-
-    #     print("Todays date: ", today)
-    #     print("Six moths ago month: ", six_months_ago)
-
-    #     df = data.DataReader(ticker_symbol, 'yahoo', six_months_ago, todays_date)
-    #     return df
-    
-    # def stock_ytd_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-    #     today = datetime.now()
-    #     current_year = today.year
-    #     print("This year is: ", today.year)
-
-    #     ytd_start = dt.datetime(current_year, 1, 1)
-    #     ytd_start = ytd_start.strftime("%d/%m/%Y")
-    #     print("YTD STARTS: ", ytd_start)
-
-    #     df = data.DataReader(ticker_symbol, 'yahoo', ytd_start, todays_date)
-    #     return df
-
-    # def stock_one_year_data(self, ticker_symbol):     
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-        
-    #     today = datetime.now()
-    #     one_year_ago = today - dateutil.relativedelta.relativedelta(months=12)
-
-    #     print("Todays date: ", today)
-    #     print("One Year Ago: ", one_year_ago)
-
-    #     df = data.DataReader(ticker_symbol, 'yahoo', one_year_ago, todays_date)
-    #     return df
-    
-    # def stock_five_year_data(self, ticker_symbol): 
-
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-    #     today = datetime.now()
-    #     five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
-
-    #     df = data.DataReader(ticker_symbol, 'yahoo', five_years_ago, todays_date)
-    #     #only return the closing price of the stock 
-    #     df = df.loc[:,'Adj Close']
-    #     return df
-    
-    # def todays_data(self, end_date): 
-    #     # Return the stock information with the provided dates given
-
-    #     user_ticker_symbol = self.stock_ticker
-    #     todays_date = datetime.now().strftime("%d/%m/%Y")
-    #     today = datetime.now()
-    #     five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
-    #     print("end date: ", end_date)
-    #     df = data.DataReader(user_ticker_symbol, 'yahoo', five_years_ago, todays_date)
-    #     print("Dataframe:" ,df)
-    #     return df
-
 #-----------------------------------------------------------------
 
 #--------does the same as the simple_rate_return function---------------------------------------------#
@@ -505,8 +387,11 @@ class Analysis(Stock):
         portfolio_std = np.sqrt(np.dot(portfolio_weight.T, np.dot(covariance, portfolio_weight)))
         #get the decimal value instead of percentage
         quarterly_portfolio_return = quarterly_portfolio_return / 100
-
-        sharpe_ratio = (quarterly_portfolio_return - 0) / portfolio_std
+        #sharpe ratio = portfolio return - risk-free rate of return / portfolio std
+        #current risk free rate of return = 0.168 
+        #risk of return rate  = ( (1 + 10 year bond rate) / (1 + inflation rate) ) - 1
+        #risk of return rate  = ( (1 + 1.63) / (1 + 1.25) ) - 1
+        sharpe_ratio = (quarterly_portfolio_return - 0.168) / portfolio_std
         print("sharpe ratio: ", sharpe_ratio)
         return sharpe_ratio 
 
@@ -773,7 +658,7 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # x.expected_return_ror()
 # print("***************************")
 # x.expected_quarterly_portfolio_return()
-# x.sharpe_ratio()
+x.sharpe_ratio()
 # x.variance_of_individual_stock('TSLA')
 
 # x.testing_covariance()

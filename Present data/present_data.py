@@ -61,12 +61,13 @@ class Visualize(Analysis):
 
         symbols = expected_rate_return.index
         plt.bar(x = symbols,height = expected_rate_return)
+        plt.tight_layout()
         plt.xticks(rotation='vertical')
         plt.xlabel('Stock')
         plt.ylabel('Expected Rate Of Return')
         plt.title('Expected Rate Of Return (Quarterly)')
         plt.show()
-    
+        
     def present_variance(self): 
         stock_list = self.stock_ticker
         stock_variance = []
@@ -79,27 +80,62 @@ class Visualize(Analysis):
         plt.xlabel('Stock')
         plt.ylabel('Variance Of The Mean Rate Of Return')
         plt.title('Variance Of each stock in the portfolio')
+        plt.tight_layout()
+        plt.show()
+    
+    def present_std_stock(self): 
+        stock_list = self.stock_ticker
+        stock_std = []
+        for i in stock_list: 
+            print("Stock: ", i)
+            stock_std.append(self.standard_deviation_stock(i))
+        print("STD of each stock in portfolio: ", stock_std)
+        plt.bar(x = stock_list ,height = stock_std)
+        plt.xticks(rotation='vertical')
+        plt.xlabel('Stock')
+        plt.ylabel('Standard Deviation')
+        plt.title('Standar Deviation Of each stock in the portfolio')
+        plt.tight_layout()
         plt.show()
 
-    def covariance_matrix(self): 
+    def correlation_matrix(self): 
 
         corr_df = self.correlation_data()
         plt.figure(figsize=(13, 8))
         seaborn.heatmap(corr_df, annot=True, cmap='RdYlGn')
+        plt.title('Correlation between stocks')
         plt.show()
+    
+    def covariance_matrix(self): 
+        covariance_data = self.covariance_stocks_simple_returns()
+        seaborn.heatmap(covariance_data, annot=True, cmap='RdYlGn')
+        plt.title('CO-Variance between stocks')
+        plt.show()
+
+        # plt.imshow(covariance_data, cmap='hot', interpolation='none')
+        # plt.colorbar()
+        # plt.xticks(rotation='vertical')
+        # plt.xticks(range(len(covariance_data)), covariance_data.columns)
+        # plt.yticks(range(len(covariance_data)), covariance_data.columns)
+        # plt.show()
+
 
 #symbols_list = ['V', 'SQ', 'TSLA', 'BTC', 'PYPL']
 #'2222.SR' --> ARAMCO OIL COMPANY
-symbols_list = ['TSLA', 'AAPL', 'OXY']
+#symbols_list = ['TSLA', 'AAPL', 'OXY']
 start = '2019-04-07'
 end = '2021-04-23'
-prices_of_stocks = [500, 100, 350]
+#prices_of_stocks = [500, 100, 350]
+symbols_list = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
+prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
 x = Visualize(symbols_list, prices_of_stocks, start, end)
 
 
-#x.covariance_matrix()
-#x.quarterly_data()
-#print(x.quarterly_simple_rate_return())
-#print(x.stock_performance())
+x.correlation_matrix()
+x.covariance_matrix()
+x.quarterly_data()
+print(x.quarterly_simple_rate_return())
+print(x.stock_performance())
 x.expected_rate_return()
 x.present_variance()
+x.present_std_stock()
