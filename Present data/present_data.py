@@ -100,7 +100,7 @@ class Visualize(Analysis):
 
     def correlation_matrix(self): 
 
-        corr_df = self.correlation_data()
+        corr_df = self.correlation_coefficient() 
         plt.figure(figsize=(13, 8))
         seaborn.heatmap(corr_df, annot=True, cmap='RdYlGn')
         plt.title('Correlation between stocks')
@@ -112,12 +112,6 @@ class Visualize(Analysis):
         plt.title('CO-Variance between stocks')
         plt.show()
 
-        # plt.imshow(covariance_data, cmap='hot', interpolation='none')
-        # plt.colorbar()
-        # plt.xticks(rotation='vertical')
-        # plt.xticks(range(len(covariance_data)), covariance_data.columns)
-        # plt.yticks(range(len(covariance_data)), covariance_data.columns)
-        # plt.show()
 
 
 #symbols_list = ['V', 'SQ', 'TSLA', 'BTC', 'PYPL']
@@ -133,9 +127,10 @@ x = Visualize(symbols_list, prices_of_stocks, start, end)
 
 x.correlation_matrix()
 x.covariance_matrix()
-x.quarterly_data()
-print(x.quarterly_simple_rate_return())
-print(x.stock_performance())
-x.expected_rate_return()
-x.present_variance()
-x.present_std_stock()
+# print(x.quarterly_data())
+# print("************")
+# print(x.quarterly_simple_rate_return())
+#print(x.stock_performance())
+# x.expected_rate_return()
+# x.present_variance()
+# x.present_std_stock()

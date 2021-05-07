@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import datetime as dt
 import dateutil.relativedelta
 from pandas_datareader import data
+import pandas as pd
 import yfinance as yf
 import numpy as np
 import math
@@ -18,25 +19,14 @@ class Analysis(Stock):
 #-----------------------------------------------------------------------------------------------------#
     def simple_daily_rate_return(self): 
         starting_price = self.stock_prices
-        todays_date = datetime.now() - timedelta(1)#.strftime("%Y-%m-%d")
+        todays_date = datetime.now() - timedelta(1)
         todays_date = todays_date.strftime("%Y-%m-%d")
-        #print("Current Date: ", current_date)
-        recent_df = self.todays_data(todays_date) 
-        #print("Current dataframe: ", recent_df) 
+        recent_df = self.todays_data(todays_date)  
         todays_closing_price = recent_df['Close']
-        #df = recent_df['Adj Close'].to_frame().reset_index()
-
-        #todays_closing_price = df.loc[:,'Adj Close']
         todays_closing_price = recent_df.loc[:,'Adj Close']
-        #print("Todays closing price: ", todays_closing_price)
         test = todays_closing_price.iloc[-1]
         todays_closing_price = test
-        #print("test: ", test)
-        #print(df)
-        #print("Todays closing price is: ", todays_closing_price)
-        #print(starting_price)
         simple_rate_return_1 = ((todays_closing_price - starting_price) / starting_price) * 100
-        #print("returns  = ", simple_rate_return_1)
         return simple_rate_return_1
 #-----------------------------------------------------------------------------------------------------#
 
@@ -75,12 +65,8 @@ class Analysis(Stock):
     def expected_5_year_return(self): 
         #get the stocks
         stock_list = self.stock_ticker
-        # #get the 5 year data for the stocks 
-        # stock_five_year_data = self.stock_five_year_data(stock_list)
-        # #get the yeraly returns of the stocks in the portfolio
-        # yearly_returns = self.yearly_stock_return(stock_list)
         #calculate the mean for each stock (mean is representing the expected return) and store this in a list
-        mean_in_portfolio = self.expected_return(stock_list)
+        mean_in_portfolio = self.expected_return(stock_list) 
         #we now have a list of expected returns which will be used to calculate the portfolio expected return
         print("mean in the portfolio: ", mean_in_portfolio)
         return mean_in_portfolio
@@ -111,7 +97,7 @@ class Analysis(Stock):
 #------------------------------------------------------------------------------------------------------------------------------#  
     def expected_quarterly_portfolio_return(self): 
         weights_in_portfolio = self.weights_of_portfolio()
-        expected_ror = self.expected_return_ror()
+        expected_ror = self.expected_quarterly_return()
         expected_ror = expected_ror.values.tolist()
         quarterly_portfolio_return = 0
         for i,j in zip(expected_ror, weights_in_portfolio): 
@@ -124,7 +110,7 @@ class Analysis(Stock):
 # The expcetd return is based off using the simple rate of return                                                              #
 # The simple rate of return uses the last 5 year data of the stock and calculates the percentage change in prices qurterly     #                                                     
 #------------------------------------------------------------------------------------------------------------------------------#
-    def expected_return_ror(self): 
+    def expected_quarterly_return(self): 
         simple_rate_of_return = self.simple_rate_of_return()
         expected_ror = simple_rate_of_return.mean()
         #print("eRoR: ", expected_ror)
@@ -163,32 +149,25 @@ class Analysis(Stock):
         number_of_stocks = 0 
         for stock in list_of_stocks:
             number_of_stocks += 1 
-        print("Number of stock in portfolio: ", number_of_stocks)
 
         total_weights = [] 
 
         total_invested = 0 
         for prices in list_of_stock_prices: 
             total_invested += prices 
-        print("Total invested: ", total_invested)
         for prices in list_of_stock_prices:
             weight_asset = prices /  total_invested
             total_weights.append(weight_asset)
-        print("Weights of assets: ", total_weights)
         
         return total_weights
     
     def yearly_stock_return(self, ticker_symbol): 
         
         #over a 5 year period: 
-
         stock_five_year_data = self.stock_five_year_data(ticker_symbol)
-        #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
         #get the annual return of the stock over the previous 5 years
         stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() 
-
-
-        #print("Yearly Returns: ", stock_five_year_returns)
+        print("Yearly Returns: ", stock_five_year_returns)
         return stock_five_year_returns
 
     
@@ -213,10 +192,7 @@ class Analysis(Stock):
 
     def standard_deviation_stock(self, ticker_symbol): 
         
-        stock_five_year_data = self.stock_five_year_data(ticker_symbol)
-        #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
-        #get the annual return of the stock over the previous 5 years
-        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change()
+        stock_five_year_returns = self.yearly_stock_return(ticker_symbol)
 
         stock_return_list = stock_five_year_returns.values.tolist()
         #pop the first element of the list as it is recorded as 'Nan' which will output the wrong data
@@ -229,13 +205,9 @@ class Analysis(Stock):
         return std_stock
     
     def standard_deviation_portfolio(self): 
-
         #get the weights of the portfolio
         weights_in_portfolio = self.weights_of_portfolio()
-        #print(weights_in_portfolio)
-
         #get the standard deviations of each stock in the portfolio: 
-
         #get list of stocks in the portfolio 
         stock_list = self.stock_ticker
         #create an empty list to store the std of each stock in the portfolio 
@@ -243,11 +215,6 @@ class Analysis(Stock):
         #loop through each stock in the portfolio to get the individual std 
         for i in stock_list: 
             std_in_portfolio.append(self.standard_deviation_stock(i))
-        # print("**************")
-        # print("STD in portfolio: ", std_in_portfolio)
-        # print("**********")
-        # print(weights_in_portfolio)
-        
         #create empty list to store the squared weights and squared standard deviations
         squared_weights = []
         squared_deviation = []
@@ -255,15 +222,11 @@ class Analysis(Stock):
         for i in weights_in_portfolio: 
             square = i ** 2
             squared_weights.append(square)
-        #print("squared weights: ", squared_weights)
         for i in std_in_portfolio:
             square_std = i ** 2
             squared_deviation.append(square_std)
-        #print("squared std: ", squared_deviation)
-
         #get the correlation of the stocks in the portfolio
         stocks_correlation = self.correlation_coefficient()
-        #print(stocks_correlation)
         stocks_correlation = stocks_correlation.values.tolist() 
         #flatten the nested list into a single list
         flat_list = self.flatten_list(stocks_correlation)
@@ -273,31 +236,23 @@ class Analysis(Stock):
         for i in flat_list:
             sum_flat_list += i
         average_correlation = sum_flat_list / length_flat_list
-        #print("average correlation: ", average_correlation)
-
         #standard deviation formula of a portfolio 
         #get all the weights multiplied against each other 
         weights_multiplied = 1 
         for i in weights_in_portfolio: 
             weights_multiplied = weights_multiplied * i 
-        print("all weights multiplied", weights_multiplied)
         #get all std multiplied against each other 
         std_multiplied = 1 
         for j in std_in_portfolio: 
             std_multiplied = std_multiplied * j
-        print("all std multiplied", std_multiplied)
-
         #this is part of the std portfolio formula 
         # 2 multiplied by the weights multiplied by the stand deviation multiplied by correlation 
         weights_std_correlation_data = 2 * weights_multiplied * std_multiplied
-        #print(weights_multiplied)
         #beginning part of the std portfolio formula 
         #multiply each std squared against its corresponding weights squared 
         sum_weights_std_squared = 0
         for i, j in zip(squared_weights, squared_deviation):
             sum_weights_std_squared += i * j 
-
-        #print("sum of weights and std combined: ", sum_weights_std_squared)
 
         variance_portfolio = sum_weights_std_squared + weights_std_correlation_data
         print("variance portfolio: ", variance_portfolio)
@@ -335,7 +290,53 @@ class Analysis(Stock):
         simple_rate_return = self.simple_rate_of_return()
         covariance = simple_rate_return.cov()
         return covariance   
+    
+    def ticker_symbols(self): 
+        #array to store prices
+        symbols = []
+        symbols_list = self.stock_ticker
+        #print("stock list: ", symbols_list)
+        start = self.start_date
+        for ticker in symbols_list:     
+            #r = web.DataReader(ticker, 'yahoo', start)  
+            stock_dataframe =  data.DataReader(ticker, 'yahoo', start)
+            #stock_dataframe = self.ticker_data_1()
+            stock_dataframe['Symbol'] = ticker    
+            symbols.append(stock_dataframe)
+        return symbols
 
+    def clean_data(self): 
+        
+        symbols = self.ticker_symbols()
+        df = pd.concat(symbols)
+        df = df.reset_index()
+        df = df[['Date', 'Close', 'Symbol']]
+        df_pivot = df.pivot('Date','Symbol','Close').reset_index()
+        df_pivot.head()
+
+        return df_pivot
+
+    def correlation_data(self): 
+
+        df_pivot = self.clean_data()
+        corr_df = df_pivot.corr(method='pearson')
+
+        corr_df.head().reset_index()
+        corr_df.head()
+        return corr_df
+    
+    def flatten_list(self, _2d_list):
+        flat_list = []
+        # Iterate through the outer list
+        for element in _2d_list:
+            if type(element) is list:
+                # If the element is of type list, iterate through the sublist
+                for item in element:
+                    flat_list.append(item)
+            else:
+                flat_list.append(element)
+        return flat_list
+    
     def simple_rate_of_return(self): 
 
         list_of_stocks = self.stock_ticker
@@ -376,7 +377,6 @@ class Analysis(Stock):
 
         return stock_daily_var
 
-
     def sharpe_ratio(self): 
         weights_in_portfolio = self.weights_of_portfolio()
         portfolio_weight = np.array(weights_in_portfolio)
@@ -395,22 +395,17 @@ class Analysis(Stock):
         print("sharpe ratio: ", sharpe_ratio)
         return sharpe_ratio 
 
-
-    def daily_return(self): 
+    def daily_closing_change(self): 
 
         current_stock = self.stock_ticker
         stock_data = self.stock_one_day_data(current_stock)
         print(stock_data)
         daily_returns = stock_data.loc[:,'Close']
         print(daily_returns)
-        # test = daily_returns.iloc[-1]
-        # test2 = daily_returns.iloc[-2]
-        # todays_closing_price = test
-        # yesterday_closing_price = test2
         x = daily_returns.pct_change() * 100
         print("Daily Returns: ", x)
 
-    def daily_return_2(self): 
+    def daily_return(self): 
 
         current_stock = self.stock_ticker
         #get weekly data of the stock 
@@ -438,7 +433,6 @@ class Analysis(Stock):
         current_stock = self.stock_ticker
         #get weekly data of the stock 
         stock_data = self.stock_one_week_data(current_stock)
-        print(stock_data)
         #store the opening prices of the stock
         open_prices = stock_data.loc[:,'Open']
         #store the closing prices of the stock
@@ -453,8 +447,7 @@ class Analysis(Stock):
         weekly_per_change = ((closing_weekly_price - opening_weekly_price) / opening_weekly_price) * 100
         print("Weekly return: ", weekly_per_change)
 
-        x = closing_prices.pct_change() * 100
-        #print("Daily Returns: ", x)
+        return weekly_per_change
     
     def monthly_return(self): 
 
@@ -482,7 +475,7 @@ class Analysis(Stock):
     def six_month_return(self): 
 
         current_stock = self.stock_ticker
-        #get weekly data of the stock 
+        #get six month data of the stock 
         stock_data = self.stock_six_month_data(current_stock)
         print(stock_data)
         #store the opening prices of the stock
@@ -499,8 +492,7 @@ class Analysis(Stock):
         six_month_per_change = ((closing_weekly_price - opening_weekly_price) / opening_weekly_price) * 100
         print("6 Months return: ", six_month_per_change)
 
-        #x = closing_prices.pct_change() * 100
-        #print("Daily Returns: ", x)
+        return six_month_per_change
 
     def ytd_return(self): 
 
@@ -589,13 +581,16 @@ end = '2021-04-08'
 # start = '07/04/2021'
 # end = '08/04/2021'
 #works with a list of stocks!
-list_stocks = ['TSLA', 'AAPL']
+list_stocks = ['TSLA', 'AAPL', 'MSFT']
+#list_stocks = 'TSLA'
 #list_stocks = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
 #prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
-prices_of_stocks = [800, 200]
+prices_of_stocks = [800, 200, 500]
 #x = Analysis('TSLA', start, end, 'MARZAN')
 x = Analysis(list_stocks, prices_of_stocks, start, end)
-#using the parent methods to test if it works
+# y = x.stock_five_year_data('TSLA')
+# print(y)
+# #using the parent methods to test if it works
 #print(x.ticker_data())
 # x.talk()
 # print("***************************")
@@ -634,12 +629,12 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 
 # print("***************************")
 # print("yearly stock return of tesla")
-# x.yearly_stock_return('TSLA')
-
+# y = x.yearly_stock_return('TSLA')
+# print(y)
 # print("***************************")
 # print("STD of tesla")
-# x.standard_deviation_stock('TSLA')
-
+# y = x.standard_deviation_stock('TSLA')
+# print(y)
 # print("***************************")
 # print("Correlation of portfolio")
 # x.correlation_of_stocks()
@@ -651,14 +646,15 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # print("***************************")
 # print("***************************")
 # print("***************************")
-# x.expected_5_year_return()
+#x.expected_5_year_return()
 # print("***************************")
 # x.expected_portfolio_return()
 # print("***************************")
-# x.expected_return_ror()
+# y = x.expected_return_ror()
+# print(y)
 # print("***************************")
-# x.expected_quarterly_portfolio_return()
-x.sharpe_ratio()
+#x.expected_quarterly_portfolio_return()
+#x.sharpe_ratio()
 # x.variance_of_individual_stock('TSLA')
 
 # x.testing_covariance()
@@ -667,7 +663,7 @@ x.sharpe_ratio()
 # y = test.values.tolist()
 # print(y)
 #x.correlation_coefficient()
-
+#x.covariance_stocks_simple_returns()
 
 # print("***************************")
 # x.standard_deviation_portfolio()

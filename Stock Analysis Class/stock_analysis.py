@@ -160,124 +160,117 @@ class Stock:
         print("Dataframe:" ,df)
         return df
 
-    # def todays_data(self, end_date): 
-    #     # Return the stock information with the provided dates given
-    #     user_ticker_symbol = self.stock_ticker
-    #     #print("end date: ", end_date)
-    #     df = data.DataReader(user_ticker_symbol, 'yahoo', end_date)
-    #     #print("Dataframe:" ,df)
-    #     return df
 #------------------------------------------------------------------------------
 # -------------------------Co-variance matrix----------------------------------    
-    def ticker_symbols(self): 
-        #array to store prices
-        symbols = []
-        symbols_list = self.stock_ticker
-        #print("stock list: ", symbols_list)
-        start = self.start_date
-        for ticker in symbols_list:     
-            #r = web.DataReader(ticker, 'yahoo', start)  
-            stock_dataframe =  data.DataReader(ticker, 'yahoo', start)
-            #stock_dataframe = self.ticker_data_1()
-            stock_dataframe['Symbol'] = ticker    
-            symbols.append(stock_dataframe)
-        return symbols
+    # def ticker_symbols(self): 
+    #     #array to store prices
+    #     symbols = []
+    #     symbols_list = self.stock_ticker
+    #     #print("stock list: ", symbols_list)
+    #     start = self.start_date
+    #     for ticker in symbols_list:     
+    #         #r = web.DataReader(ticker, 'yahoo', start)  
+    #         stock_dataframe =  data.DataReader(ticker, 'yahoo', start)
+    #         #stock_dataframe = self.ticker_data_1()
+    #         stock_dataframe['Symbol'] = ticker    
+    #         symbols.append(stock_dataframe)
+    #     return symbols
 
-    def clean_data(self): 
+    # def clean_data(self): 
         
-        symbols = self.ticker_symbols()
-        df = pd.concat(symbols)
-        df = df.reset_index()
-        df = df[['Date', 'Close', 'Symbol']]
-        df_pivot = df.pivot('Date','Symbol','Close').reset_index()
-        df_pivot.head()
+    #     symbols = self.ticker_symbols()
+    #     df = pd.concat(symbols)
+    #     df = df.reset_index()
+    #     df = df[['Date', 'Close', 'Symbol']]
+    #     df_pivot = df.pivot('Date','Symbol','Close').reset_index()
+    #     df_pivot.head()
 
-        return df_pivot
+    #     return df_pivot
 
-    def correlation_data(self): 
+    # def correlation_data(self): 
 
-        df_pivot = self.clean_data()
-        corr_df = df_pivot.corr(method='pearson')
+    #     df_pivot = self.clean_data()
+    #     corr_df = df_pivot.corr(method='pearson')
 
-        corr_df.head().reset_index()
-        corr_df.head()
-        return corr_df
+    #     corr_df.head().reset_index()
+    #     corr_df.head()
+    #     return corr_df
 #------------------------------------------------------------------------------
-    def flatten_list(self, _2d_list):
-        flat_list = []
-        # Iterate through the outer list
-        for element in _2d_list:
-            if type(element) is list:
-                # If the element is of type list, iterate through the sublist
-                for item in element:
-                    flat_list.append(item)
-            else:
-                flat_list.append(element)
-        return flat_list
+    # def flatten_list(self, _2d_list):
+    #     flat_list = []
+    #     # Iterate through the outer list
+    #     for element in _2d_list:
+    #         if type(element) is list:
+    #             # If the element is of type list, iterate through the sublist
+    #             for item in element:
+    #                 flat_list.append(item)
+    #         else:
+    #             flat_list.append(element)
+    #     return flat_list
 #------------------------------------------------------------------------------
-# -------------------------Portfolio Optimization Class---------------------------------- 
-    def quarterly_mean(self): 
+# -------------------------Portfolio Optimization Class Methods---------------------------------- 
+    # def quarterly_mean(self): 
 
-        simple_rate_of_return = self.simple_rate_of_return()
-        quarterly_mean = simple_rate_of_return.mean()
+    #     simple_rate_of_return = self.simple_rate_of_return()
+    #     quarterly_mean = simple_rate_of_return.mean()
 
-        return quarterly_mean
+    #     return quarterly_mean
 
-    def expected_5_year_return(self): 
-        #get the stocks
-        stock_list = self.stock_ticker
-        # #get the 5 year data for the stocks 
-        # stock_five_year_data = self.stock_five_year_data(stock_list)
-        # #get the yeraly returns of the stocks in the portfolio
-        # yearly_returns = self.yearly_stock_return(stock_list)
-        #calculate the mean for each stock (mean is representing the expected return) and store this in a list
-        mean_in_portfolio = self.expected_return(stock_list)
-        #we now have a list of expected returns which will be used to calculate the portfolio expected return
-        print("mean in the portfolio: ", mean_in_portfolio)
-        return mean_in_portfolio
-        #print("yearly returns: ", yearly_returns)
+    # def expected_5_year_return(self): 
+    #     #get the stocks
+    #     stock_list = self.stock_ticker
+    #     # #get the 5 year data for the stocks 
+    #     # stock_five_year_data = self.stock_five_year_data(stock_list)
+    #     # #get the yeraly returns of the stocks in the portfolio
+    #     # yearly_returns = self.yearly_stock_return(stock_list)
+    #     #calculate the mean for each stock (mean is representing the expected return) and store this in a list
+    #     mean_in_portfolio = self.expected_return(stock_list)
+    #     #we now have a list of expected returns which will be used to calculate the portfolio expected return
+    #     print("mean in the portfolio: ", mean_in_portfolio)
+    #     return mean_in_portfolio
+    #     #print("yearly returns: ", yearly_returns)
         
-    def expected_return(self, stock): 
+    # def expected_return(self, stock): 
         
-        #expected return can be calculated from using the mean 
-        yearly_returns = self.yearly_stock_return(stock)
-        #using the mean method, we can calculate the mean in the datafram by specifying which column to use
-        mean = yearly_returns.mean(axis=0)
-        print("Yearly mean: ", mean)
-        return mean
+    #     #expected return can be calculated from using the mean 
+    #     yearly_returns = self.yearly_stock_return(stock)
+    #     #using the mean method, we can calculate the mean in the datafram by specifying which column to use
+    #     mean = yearly_returns.mean(axis=0)
+    #     print("Yearly mean: ", mean)
+    #     return mean
     
-    def yearly_stock_return(self, ticker_symbol): 
+    # def yearly_stock_return(self, ticker_symbol): 
         
-        #over a 5 year period: 
+    #     #over a 5 year period: 
 
-        stock_five_year_data = self.stock_five_year_data(ticker_symbol)
-        #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
-        #get the annual return of the stock over the previous 5 years
-        stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() 
+    #     stock_five_year_data = self.stock_five_year_data(ticker_symbol)
+    #     #stock_five_year_returns = stock_five_year_data['Adj Close'].pct_change()
+    #     #get the annual return of the stock over the previous 5 years
+    #     stock_five_year_returns = stock_five_year_data.resample('Y').ffill().pct_change() 
 
 
-        #print("Yearly Returns: ", stock_five_year_returns)
-        return stock_five_year_returns
+    #     #print("Yearly Returns: ", stock_five_year_returns)
+    #     return stock_five_year_returns
 
-    def covariance_stocks_simple_returns(self): 
-        #get the simple rate of return 
-        simple_rate_return = self.simple_rate_of_return()
-        covariance = simple_rate_return.cov()
-        return covariance   
+    # def covariance_stocks_simple_returns(self): 
+    #     #get the simple rate of return 
+    #     simple_rate_return = self.simple_rate_of_return()
+    #     covariance = simple_rate_return.cov()
+    #     return covariance   
     
-    def simple_rate_of_return(self): 
+    # def simple_rate_of_return(self): 
 
-        list_of_stocks = self.stock_ticker
-        stock_five_year_data = self.stock_five_year_data(list_of_stocks)
-        stock_data_adj_close = stock_five_year_data
-        #refine the df to get the quarterly stock data over the previous 5 years  
-        stock_data_adj_close  = stock_data_adj_close.resample('Q').last()
+    #     list_of_stocks = self.stock_ticker
+    #     stock_five_year_data = self.stock_five_year_data(list_of_stocks)
+    #     stock_data_adj_close = stock_five_year_data
+    #     #refine the df to get the quarterly stock data over the previous 5 years  
+    #     stock_data_adj_close  = stock_data_adj_close.resample('Q').last()
 
-        simple_rate_of_return = stock_data_adj_close.pct_change()
+    #     simple_rate_of_return = stock_data_adj_close.pct_change()
 
-        return simple_rate_of_return
+    #     return simple_rate_of_return
 #-----------------------------------------------------------------------------------------------------------
-
+#remove the following functions as they are not used 
     def list_of_stocks_data(self, stocks_list): 
         
         # Return the stock information with the provided dates given 
@@ -332,6 +325,40 @@ class Stock:
         end_date_obj = dt.datetime.strptime(self.end_date, '%d/%m/%y')
         return end_date_obj
         
+
+
+#start = '2020-04-07'
+#end = '2021-04-08'
+#list_stocks = ['TSLA']
+#prices_of_stocks = [450]
+#stock_test = Stock(list_stocks, prices_of_stocks, start, end)
+#get the stock ticker
+#stock_ticker = stock_test.get_stock()
+#get the five year data of the provided stock
+#stock_data = stock_test.stock_five_year_data(stock_ticker)
+#print the data frame of just clsoing prices
+#print(stock_data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # symbol = ["GME", "TSLA", "MSFT"]
 # stock_list = Stock(symbol, "22/01/2020", "29/03/2021")
 # print(stock_list.get_start_date())

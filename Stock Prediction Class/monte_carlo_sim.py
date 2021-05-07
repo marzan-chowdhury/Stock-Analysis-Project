@@ -18,19 +18,12 @@ style.use('ggplot')
 class Prediction(Stock): 
 
   def __init__(self, stock_ticker, stock_prices, start_date, end_date):
-    # self.stock_ticker =  stock_ticker
-    # self.start_date = start_date
-    # self.end_date = end_date
     super().__init__(stock_ticker, stock_prices, start_date, end_date)
   
   def get_stock_data(self):  
-    # Return the stock information with the provided dates given 
-    start_date = self.start_date
-    end_date = self.end_date
     user_ticker_symbol = self.stock_ticker
-    #only get the closeing price of the stock
-    df = data.DataReader(user_ticker_symbol, 'yahoo', start_date, end_date)['Close']
-    return df
+    stock_data = self.stock_five_year_data(user_ticker_symbol)
+    return stock_data
   
   def percentage_change(self): 
 
@@ -39,7 +32,7 @@ class Prediction(Stock):
     returns = stock_data.pct_change()
     return returns
   
-  def get_last_price(self): 
+  def get_latest_price(self): 
 
     stock_data = self.get_stock_data()
     #convert dataframe to a list
@@ -52,9 +45,9 @@ class Prediction(Stock):
     return final_price
   
   def simulations(self): 
-    num_simulations = 100 
+    num_simulations = 100
     #how many days into the future we are going int
-    num_days = 252#1260 #252 trading days 
+    num_days = 1260 #252 trading days 
     return num_simulations, num_days
 
   def monte_carlo_sim(self):
@@ -66,7 +59,7 @@ class Prediction(Stock):
     #get the returns (percentage change of the stock data)
     returns = self.percentage_change()
     #get the last price of the stock data 
-    last_price = self.get_last_price()
+    last_price = self.get_latest_price()
 
     #create a for loop for the number of simulations we want to create 
     for x in range(num_simulations): 
@@ -100,15 +93,18 @@ class Prediction(Stock):
     simulation_df = self.monte_carlo_sim()
 
     #get the last price 
-    last_price = self.get_last_price()
+    last_price = self.get_latest_price()
 
     fig = plt.figure() 
     fig.suptitle('Monte Carlo Simulation of '+ str(ticker_symbol))
     plt.plot(simulation_df)
-    plt.axhline(y = last_price, color = 'r', linestyle = '-')
+    plt.axhline(y = last_price, color = 'b', linestyle = '-')
     plt.xlabel('Day')
     plt.ylabel('Price')
     plt.show() 
+
+
+
 
 
 start = '2015-04-07'
@@ -118,11 +114,9 @@ list_stocks = ['TSLA']
 
 x = Prediction(list_stocks, prices_of_stocks, start, end)
 x.plot_monte_carlo_sim()
-x.percentage_change()
-x.get_last_price()
-x.monte_carlo_sim()
-
-
+#x.percentage_change()
+# x.get_latest_price()
+# x.monte_carlo_sim()
 
 
 

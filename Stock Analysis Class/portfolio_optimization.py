@@ -1,5 +1,5 @@
-import sys
-sys.path.append("C:/University/Level 6/Project Planning/Project Code/Stock Analysis Class")
+# import sys
+# sys.path.append("C:/University/Level 6/Project Planning/Project Code/Stock Analysis Class")
 from stock_analysis import Stock
 import numpy as np
 #-----------------------------------------------#
@@ -15,16 +15,76 @@ import yfinance as yf
 import pandas as pd
 import math
 import random
-
 import matplotlib.pyplot as plt 
 import seaborn
-
 
 class Optimization(Stock): 
 
     def __init__(self, stock_ticker, stock_prices, start_date, end_date):
         super().__init__(stock_ticker, stock_prices, start_date, end_date)
     
+    def quarterly_mean(self): 
+
+        simple_rate_of_return = self.simple_rate_of_return()
+        quarterly_mean = simple_rate_of_return.mean()
+
+        return quarterly_mean
+
+    def covariance_stocks_simple_returns(self): 
+        #get the simple rate of return 
+        simple_rate_return = self.simple_rate_of_return()
+        covariance = simple_rate_return.cov()
+        return covariance   
+    
+    def simple_rate_of_return(self): 
+
+        list_of_stocks = self.stock_ticker
+        stock_five_year_data = self.stock_five_year_data(list_of_stocks)
+        stock_data_adj_close = stock_five_year_data
+        #refine the df to get the quarterly stock data over the previous 5 years  
+        stock_data_adj_close  = stock_data_adj_close.resample('Q').last()
+
+        simple_rate_of_return = stock_data_adj_close.pct_change()
+
+        return simple_rate_of_return
+
+    def weights_of_portfolio(self): 
+
+        list_of_stocks = self.stock_ticker 
+        list_of_stock_prices = self.stock_prices 
+
+        number_of_stocks = 0 
+        for stock in list_of_stocks:
+            number_of_stocks += 1 
+
+        total_weights = [] 
+
+        total_invested = 0 
+        for prices in list_of_stock_prices: 
+            total_invested += prices 
+        for prices in list_of_stock_prices:
+            weight_asset = prices /  total_invested
+            total_weights.append(weight_asset)
+        
+        return total_weights
+    
+    def my_portfolio(self): 
+        
+        portfolio = self.stock_ticker 
+        #length of the portfolio 
+        length_port = len(portfolio)
+        #find the returns 
+        expected_returns = self.quarterly_mean()
+        expected_returns = expected_returns.values.tolist()
+        sum = 0 
+        for i in expected_returns:
+            sum += i 
+        average_returns = sum / length_port
+        weights = self.weights_of_portfolio()
+        stock_covariance = self.covariance_stocks_simple_returns()
+        volatility = np.sqrt(np.dot(weights, np.dot(stock_covariance, weights)))
+        return average_returns , volatility
+
     def return_portfolios(self, expected_returns, cov_matrix):
 
         np.random.seed(1)
@@ -35,26 +95,26 @@ class Optimization(Stock):
         selected = (expected_returns.axes)[0]
         #this specifies the number of random portfolios generated  
         num_assets = len(selected) 
-        num_portfolios = 50000
+        num_portfolios = 100000
 
         for single_portfolio in range(num_portfolios):
             weights = np.random.random(num_assets)
             weights /= np.sum(weights)
             returns = np.dot(weights, expected_returns)
-            volatility = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+            risk = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
             port_returns.append(returns)
-            port_volatility.append(volatility)
+            port_volatility.append(risk)
             stock_weights.append(weights)
 
             portfolio = {'Returns': port_returns,
-                        'Volatility': port_volatility}
+                        'Risk': port_volatility}
 
         for counter,symbol in enumerate(selected):
             portfolio[symbol +' Weight'] = [Weight[counter] for Weight in stock_weights]
 
         df = pd.DataFrame(portfolio)
 
-        column_order = ['Returns', 'Volatility'] + [stock + ' Weight' for stock in selected]
+        column_order = ['Returns', 'Risk'] + [stock + ' Weight' for stock in selected]
 
         df = df[column_order]
 
@@ -93,13 +153,11 @@ class Optimization(Stock):
     def generate_random_portfolios(self): 
         #we will be using the expected returns that are generated from the quarterly changes rather than yearly 
         expected_returns = self.quarterly_mean()
-        print("quarterly returns: ", expected_returns)
-        x = self.expected_5_year_return()
-        print("yearly returns: ", x)
         stock_covariance = self.covariance_stocks_simple_returns()
 
-        random_portfolios = self.return_portfolios(x, stock_covariance)
-        print(random_portfolios.head().round(4))
+        random_portfolios = self.return_portfolios(expected_returns, stock_covariance)
+        #print(random_portfolios.head())
+
 
         return random_portfolios
     
@@ -112,52 +170,50 @@ class Optimization(Stock):
         #print(weights, returns, risks)
 
         return weights, returns, risks 
+
+    def recommended_portfolio_plot(self): 
+
+        stock_data_quarterly_returns = self.simple_rate_of_return()
+        generate_random_portfolios = self.generate_random_portfolios()
+        max_port, min_vol = self.recommended_portfolio() 
+        max_returns = max_port[0]
+        max_risk = max_port[1]
+        min_returns = min_vol[0]
+        min_risk = min_vol[1]
+
+        return max_returns, max_risk, min_returns, min_risk
+
     
-    # def efficient_frontier(self): 
-    #     random_portfolios = self.generate_random_portfolios()
-    #     weights, returns, risks = self.generate_optimal_portfolio()
-    #     stock_covariance = self.covariance_stocks_simple_returns()
-    #     quarterly_mean = self.quarterly_mean()
-    #     stock_data_quarterly_returns = self.simple_rate_of_return()
-    #     random_portfolios.plot.scatter(x='Volatility', y='Returns', fontsize = 12, figsize=(30,30))
-    #     plt.margins(x=0.05, y=-0.3)
-    #     plt.xlabel('Volatility (Std. Deviation)', fontsize = 20)
-    #     plt.ylabel('Expected Returns', fontsize = 20)
-    #     plt.title('Efficient Frontier', fontsize = 20)
-
-    #     #How to put labels right next to the spots?
-    #     single_asset_std=np.sqrt(np.diagonal(stock_covariance))
-    #     plt.scatter(single_asset_std,quarterly_mean,marker='X',color='red',s=200)
-    #     for i, txt in enumerate(stock_data_quarterly_returns.keys()):
-    #         plt.annotate(txt, (single_asset_std[i], quarterly_mean[i]), size=14, xytext=(10,10), ha='left', textcoords='offset points')
-            
-    #     plt.plot(risks, returns, 'y-o')
-    #     #plt.plot(risks_noGE, returns_noGE, 'g-o')
-    #     plt.legend(['With TSLA', 'Without TSLA', 'Random'], fontsize = 20, loc="lower left")
-        
-    #     plt.show()
-
+    def recommended_portfolio(self): 
+        generate_random_portfolios = self.generate_random_portfolios()
+        for i in range(10000):
+            #define the risk and returns wanted for the portfolio
+            if generate_random_portfolios.Risk[i] < 0.3 and generate_random_portfolios.Returns[i] > 0.15:
+                max_return_portfolio = generate_random_portfolios.iloc[generate_random_portfolios['Returns'].idxmax()]
+                min_volatility_portfolio = generate_random_portfolios.iloc[generate_random_portfolios['Risk'].idxmin()]
+                #print(generate_random_portfolios.iloc[[i]])
+        print(max_return_portfolio)
+        print(min_volatility_portfolio)
+        return max_return_portfolio, min_volatility_portfolio
+    
     def efficient_frontier(self): 
 
         weights, returns, risks = self.generate_optimal_portfolio()
         random_portfolios = self.generate_random_portfolios()
+        max_returns, max_risk, min_returns, min_risk = self.recommended_portfolio_plot()
+        #this will plot where the investors portfolio is on the efficient frontier
+        p_risks, p_returns = self.my_portfolio()
         plt.style.use('seaborn')
-        random_portfolios.plot.scatter(x='Volatility', y='Returns', figsize=(10,8), grid=True)
-
-
-        # stock_covariance = self.covariance_stocks_simple_returns()
-        # quarterly_mean = self.quarterly_mean()
-        # stock_data_quarterly_returns = self.simple_rate_of_return()
-
-        # single_asset_std=np.sqrt(np.diagonal(stock_covariance))
-        # plt.scatter(single_asset_std,quarterly_mean,marker='X',color='red',s=200)
-        # for i, txt in enumerate(stock_data_quarterly_returns.keys()):
-        #     plt.annotate(txt, (single_asset_std[i], quarterly_mean[i]), size=14, xytext=(10,10), ha='left', textcoords='offset points')
+        random_portfolios.plot.scatter(x='Risk', y='Returns', figsize=(10,8), grid=True)
 
         plt.xlabel('Volatility (Std. Deviation)', fontsize = 20)
         plt.ylabel('Expected Returns', fontsize = 20)
         plt.title('Efficient Frontier', fontsize = 20)
         plt.plot(risks, returns, 'y-o')
+        #the investors portfolio is marked by a red mark
+        plt.plot(p_risks, p_returns, marker=(5,1,0),color='r')
+        plt.plot(max_returns, max_risk, marker=(5,1,0),color='g')
+        plt.plot(min_returns, min_risk, marker=(5,1,0),color='b')
         plt.show()
 
 
@@ -165,12 +221,15 @@ class Optimization(Stock):
 start = '2019-04-07'
 end = '2021-04-23'
 symbols_list = ['AMZN','NVDA', 'TSLA', 'AAPL']
-prices_of_stocks = [20, 1100, 250, 44]
+prices_of_stocks = [5000, 11000, 25000, 4500]
 x = Optimization(symbols_list, prices_of_stocks, start, end)
 
-#x.generate_random_portfolios()
-#x.generate_optimal_portfolio()
+#x.recommended_portfolio()
+# x.generate_random_portfolios()
+# x.generate_optimal_portfolio()
 x.efficient_frontier()
+#x.my_portfolio()
+#x.generate_optimal_portfolio_2()
 
 
 
@@ -184,29 +243,3 @@ x.efficient_frontier()
 
 
 
-
-    
-# #this will calculate return, std and sharpe ratio of each portfolio
-#     def calc_portfolio_perf(weights, mean_returns, cov, rf):
-#         portfolio_return = self.quarterly_portfolio_return()
-#         portfolio_std = np.sqrt(np.dot(weights.T, np.dot(cov, weights)))
-#         sharpe_ratio = (portfolio_return - rf) / portfolio_std
-#         return portfolio_return, portfolio_std, sharpe_ratio
-
-# #this will generate random portfolios
-#     def simulate_random_portfolios(num_portfolios, mean_returns, cov, rf, tickers):
-#         results_matrix = np.zeros((len(mean_returns)+3, num_portfolios))
-#         for i in range(num_portfolios):
-#             weights = np.random.random(len(mean_returns))
-#             weights /= np.sum(weights)
-#             portfolio_return, portfolio_std, sharpe_ratio = calc_portfolio_perf(weights, mean_returns, cov, rf)
-#             results_matrix[0,i] = portfolio_return
-#             results_matrix[1,i] = portfolio_std
-#             results_matrix[2,i] = sharpe_ratio
-#             #iterate through the weight vector and add data to results array
-#             for j in range(len(weights)):
-#                 results_matrix[j+3,i] = weights[j]
-                
-#         results_df = pd.DataFrame(results_matrix.T,columns=['ret','stdev','sharpe'] + [ticker for ticker in tickers])
-            
-#         return results_df
