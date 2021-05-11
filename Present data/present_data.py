@@ -114,23 +114,20 @@ class Visualize(Analysis):
 
 
 
-#symbols_list = ['V', 'SQ', 'TSLA', 'BTC', 'PYPL']
-#'2222.SR' --> ARAMCO OIL COMPANY
-#symbols_list = ['TSLA', 'AAPL', 'OXY']
+
 start = '2019-04-07'
 end = '2021-04-23'
-#prices_of_stocks = [500, 100, 350]
 symbols_list = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
 prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
 x = Visualize(symbols_list, prices_of_stocks, start, end)
 
 
-x.correlation_matrix()
-x.covariance_matrix()
+# x.correlation_matrix()
+# x.covariance_matrix()
 # print(x.quarterly_data())
 # print("************")
 # print(x.quarterly_simple_rate_return())
 #print(x.stock_performance())
 # x.expected_rate_return()
 # x.present_variance()
-# x.present_std_stock()
+# x.present_std_stock() 

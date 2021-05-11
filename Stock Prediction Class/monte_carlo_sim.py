@@ -111,9 +111,11 @@ start = '2015-04-07'
 end = '2021-04-08'
 prices_of_stocks = [800]
 list_stocks = ['TSLA']
-
 x = Prediction(list_stocks, prices_of_stocks, start, end)
 x.plot_monte_carlo_sim()
+
+
+
 #x.percentage_change()
 # x.get_latest_price()
 # x.monte_carlo_sim()

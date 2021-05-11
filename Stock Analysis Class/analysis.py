@@ -542,7 +542,7 @@ class Analysis(Stock):
         
         current_stock = self.stock_ticker
         #get weekly data of the stock 
-        stock_data = self.stock_five_year_data(current_stock)
+        stock_data = self.fixed_stock_five_year_data(current_stock)
         #store the opening prices of the stock
         open_prices = stock_data.loc[:,'Open']
         #store the closing prices of the stock
@@ -581,11 +581,11 @@ end = '2021-04-08'
 # start = '07/04/2021'
 # end = '08/04/2021'
 #works with a list of stocks!
-list_stocks = ['TSLA', 'AAPL', 'MSFT']
+list_stocks = ['TSLA']
 #list_stocks = 'TSLA'
 #list_stocks = ['AMZN','GOOG', 'TSLA', 'AAPL', 'UBER', 'NFLX', 'SQ', 'AMD', 'PLTR', 'NVDA']
 #prices_of_stocks = [500, 100, 600, 450, 600, 750, 650, 330, 540, 100]
-prices_of_stocks = [800, 200, 500]
+prices_of_stocks = [800]
 #x = Analysis('TSLA', start, end, 'MARZAN')
 x = Analysis(list_stocks, prices_of_stocks, start, end)
 # y = x.stock_five_year_data('TSLA')
@@ -601,12 +601,12 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 
 #simp_return = x.simple_rate_return(prices_of_stocks)
 
-# simp_return = x.simple_daily_rate_return()
-# print("Returns: ", simp_return)
+simp_return = x.simple_daily_rate_return()
+print("Returns: ", simp_return)
 # print("***************************")
 
-# x.daily_return_2()
-# print("***************************")
+x.five_year_annual_returns()
+print("***************************")
 # x.weekly_return()
 # print("***************************")
 # x.monthly_return()
@@ -633,8 +633,8 @@ x = Analysis(list_stocks, prices_of_stocks, start, end)
 # print(y)
 # print("***************************")
 # print("STD of tesla")
-# y = x.standard_deviation_stock('TSLA')
-# print(y)
+y = x.standard_deviation_stock('TSLA')
+print(y)
 # print("***************************")
 # print("Correlation of portfolio")
 # x.correlation_of_stocks()

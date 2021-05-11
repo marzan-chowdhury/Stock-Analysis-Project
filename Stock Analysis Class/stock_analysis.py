@@ -15,7 +15,7 @@ class Stock:
         self.stock_prices = stock_prices
         self.start_date = start_date
         self.end_date = end_date
-    
+
     def get_stock(self): 
         return self.stock_ticker
     
@@ -137,6 +137,16 @@ class Stock:
         df = df.loc[:,'Adj Close']
         return df
 
+    def fixed_stock_five_year_data(self, ticker_symbol): 
+
+        todays_date = datetime.now().strftime("%d/%m/%Y")
+        today = datetime.now()
+        five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
+
+        df = data.DataReader(ticker_symbol, 'yahoo', five_years_ago, todays_date)
+        #only return the closing price of the stock 
+        return df
+
     def todays_data(self, end_date): 
         # Return the stock information with the provided dates given
 
@@ -158,6 +168,8 @@ class Stock:
         five_years_ago = today - dateutil.relativedelta.relativedelta(years=5)
         df = data.DataReader(user_ticker_symbol, 'yahoo', five_years_ago, todays_date)
         print("Dataframe:" ,df)
+
+
         return df
 
 #------------------------------------------------------------------------------
@@ -327,11 +339,12 @@ class Stock:
         
 
 
-#start = '2020-04-07'
-#end = '2021-04-08'
-#list_stocks = ['TSLA']
-#prices_of_stocks = [450]
-#stock_test = Stock(list_stocks, prices_of_stocks, start, end)
+start = '2020-04-07'
+end = '2021-04-08'
+list_stocks = ['TSLA']
+prices_of_stocks = [450]
+stock_test = Stock(list_stocks, prices_of_stocks, start, end)
+
 #get the stock ticker
 #stock_ticker = stock_test.get_stock()
 #get the five year data of the provided stock
