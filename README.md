@@ -28,5 +28,5 @@ Marzan Chowdhury
 
 ## Project Status 
 
-This is has not been completed during the original development time provided therefore, future development of the project will continue by improving existing features and new features to the system application will be implemented. 
+This is has not been completed during the original development time provided therefore, future development of the project will continue by improving the existing framework. 
 
